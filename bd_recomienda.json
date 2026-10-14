@@ -1,0 +1,68 @@
+[
+  {
+    "Id": 1,
+    "Titulo": "Interstellar",
+    "TipoContenido": "Pel\u00EDculas",
+    "Categoria": "Ciencia Ficci\u00F3n",
+    "AutorDirector": "Christopher Nolan",
+    "Anio": 2014,
+    "Sinopsis": "Un grupo de exploradores emprende la misi\u00F3n m\u00E1s importante de la historia de la humanidad: viajar m\u00E1s all\u00E1 de nuestra galaxia a trav\u00E9s de un agujero de gusano para asegurar el futuro de la especie humana.",
+    "PuntajeSimilitud": 94,
+    "Estado": "Pendiente"
+  },
+  {
+    "Id": 2,
+    "Titulo": "Inception",
+    "TipoContenido": "Pel\u00EDculas",
+    "Categoria": "Ciencia Ficci\u00F3n",
+    "AutorDirector": "Christopher Nolan",
+    "Anio": 2010,
+    "Sinopsis": "Dom Cobb es un ladr\u00F3n capaz de adentrarse en los sue\u00F1os de la gente y hacerse con sus secretos m\u00E1s preciados del subconsciente.",
+    "PuntajeSimilitud": 91,
+    "Estado": "Pendiente"
+  },
+  {
+    "Id": 3,
+    "Titulo": "The Matrix",
+    "TipoContenido": "Pel\u00EDculas",
+    "Categoria": "Ciencia Ficci\u00F3n",
+    "AutorDirector": "Wachowskis",
+    "Anio": 1999,
+    "Sinopsis": "Un experto en computadoras descubre que su mundo es una simulaci\u00F3n total creada con maliciosas intenciones por parte de la ciberinteligencia.",
+    "PuntajeSimilitud": 88,
+    "Estado": "Pendiente"
+  },
+  {
+    "Id": 4,
+    "Titulo": "Dune: Part Two",
+    "TipoContenido": "Pel\u00EDculas",
+    "Categoria": "Ciencia Ficci\u00F3n",
+    "AutorDirector": "Denis Villeneuve",
+    "Anio": 2024,
+    "Sinopsis": "Paul Atreides se une a la tribu de los Fremen y comienza un viaje espiritual y marcial para convertirse en mes\u00EDas.",
+    "PuntajeSimilitud": 86,
+    "Estado": "Pendiente"
+  },
+  {
+    "Id": 5,
+    "Titulo": "Arrival",
+    "TipoContenido": "Pel\u00EDculas",
+    "Categoria": "Ciencia Ficci\u00F3n",
+    "AutorDirector": "Denis Villeneuve",
+    "Anio": 2016,
+    "Sinopsis": "Doce naves extraterrestres comienzan a llegar a nuestro planeta. Los altos mandos militares piden ayuda a una experta ling\u00FCista.",
+    "PuntajeSimilitud": 83,
+    "Estado": "Pendiente"
+  },
+  {
+    "Id": 6,
+    "Titulo": "Blade Runner 2049",
+    "TipoContenido": "Pel\u00EDculas",
+    "Categoria": "Ciencia Ficci\u00F3n",
+    "AutorDirector": "Denis Villeneuve",
+    "Anio": 2017,
+    "Sinopsis": "Un nuevo blade runner, el oficial K del Departamento de Polic\u00EDa de Los \u00C1ngeles, desentierra un antiguo secreto.",
+    "PuntajeSimilitud": 89,
+    "Estado": "Pendiente"
+  }
+]
