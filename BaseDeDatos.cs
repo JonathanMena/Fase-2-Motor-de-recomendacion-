@@ -9,14 +9,14 @@ namespace MotorRecomendacion
     {
         private static readonly string rutaArchivo = "bd_recomienda.json";
 
-        // Carga los registros desde el disco duro hacia nuestra Lista Doblemente Enlazada
+  
         public static ListaDoble InicializarYCargarLista()
         {
             ListaDoble lista = new ListaDoble();
 
             if (!File.Exists(rutaArchivo))
             {
-                // Semilla inicial basada exactamente en los Mockups del documento Fase 1
+
                 var datosIniciales = new List<Recomendacion>
                 {
                     new Recomendacion(1, "Interstellar", "Películas", "Ciencia Ficción", "Christopher Nolan", 2014,
@@ -35,7 +35,7 @@ namespace MotorRecomendacion
 
                 foreach (var item in datosIniciales)
                 {
-                    lista.Añadir(item); // Inserta creando Nodos con punteros Ant y Sig
+                    lista.Añadir(item); 
                 }
 
                 GuardarDesdeLista(lista);
@@ -53,11 +53,10 @@ namespace MotorRecomendacion
                 }
             }
 
-            lista.Inicio(); // Sitúa el puntero en primerNodo (Cabeza)
+            lista.Inicio(); 
             return lista;
         }
 
-        // Recorre la ListaDoble nodo por nodo con punteroAuxiliar y guarda en disco
         public static void GuardarDesdeLista(ListaDoble lista)
         {
             var registros = new List<Recomendacion>();
