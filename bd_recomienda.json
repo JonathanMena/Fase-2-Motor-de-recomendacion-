@@ -1,5 +1,16 @@
 [
   {
+    "Id": 16,
+    "Titulo": "Nuevo Contenido",
+    "TipoContenido": "Pel\u00EDculas",
+    "Categoria": "Ciencia Ficci\u00F3n",
+    "AutorDirector": "Director Invitado",
+    "Anio": 2026,
+    "Sinopsis": "Recomendaci\u00F3n insertada din\u00E1micamente en la Lista Doblemente Enlazada.",
+    "PuntajeSimilitud": 95,
+    "Estado": "Pendiente"
+  },
+  {
     "Id": 1,
     "Titulo": "Interstellar",
     "TipoContenido": "Pel\u00EDculas",
@@ -8,7 +19,7 @@
     "Anio": 2014,
     "Sinopsis": "Un grupo de exploradores emprende la misi\u00F3n m\u00E1s importante de la historia de la humanidad: viajar m\u00E1s all\u00E1 de nuestra galaxia a trav\u00E9s de un agujero de gusano para asegurar el futuro de la especie humana.",
     "PuntajeSimilitud": 94,
-    "Estado": "Pendiente"
+    "Estado": "Me gusta \u2764\uFE0F"
   },
   {
     "Id": 2,
@@ -19,7 +30,7 @@
     "Anio": 2010,
     "Sinopsis": "Dom Cobb es un ladr\u00F3n capaz de adentrarse en los sue\u00F1os de la gente y hacerse con sus secretos m\u00E1s preciados del subconsciente.",
     "PuntajeSimilitud": 91,
-    "Estado": "Pendiente"
+    "Estado": "Guardado \uD83D\uDD16"
   },
   {
     "Id": 3,

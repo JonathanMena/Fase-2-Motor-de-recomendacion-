@@ -4,119 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recomienda+ | Motor de Recomendación EDD</title>
-    <style>
-        :root {
-            --bg-main: #0b0d17;
-            --bg-card: #131726;
-            --bg-card-active: #1d2238;
-            --accent: #8b5cf6;
-            --accent-light: #a78bfa;
-            --cyan: #22d3ee;
-            --pink: #f472b6;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #262c44;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; }
-
-        /* Barra de navegación superior */
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 40px; border-bottom: 1px solid var(--border);
-            background: rgba(19, 23, 38, 0.85); backdrop-filter: blur(10px);
-        }
-        .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.25rem; }
-        .brand-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-        .nav-tabs { display: flex; gap: 8px; background: #0f121f; padding: 6px; border-radius: 10px; border: 1px solid var(--border); }
-        .nav-btn {
-            background: transparent; border: none; color: var(--text-muted);
-            padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s;
-        }
-        .nav-btn.active { background: var(--accent); color: white; }
-        .user-pill { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.9rem; }
-
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 24px; }
-        .vista { display: none; }
-        .vista.activa { display: block; }
-
-        /* Diagrama Superior de Punteros (Mockup Pág. 11) */
-        .nodos-visualizer {
-            display: flex; align-items: center; justify-content: center; gap: 18px;
-            background: var(--bg-card); padding: 24px; border-radius: 16px;
-            border: 1px solid var(--border); margin-bottom: 28px;
-        }
-        .nodo-box {
-            background: #0f1322; border: 1px solid var(--border); border-radius: 12px;
-            padding: 16px 22px; min-width: 220px; text-align: left; opacity: 0.65; transition: 0.3s;
-        }
-        .nodo-box.actual {
-            opacity: 1; background: var(--bg-card-active);
-            border: 2px solid var(--accent); box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
-            transform: scale(1.04);
-        }
-        .puntero-arrow { color: var(--text-muted); font-family: monospace; font-size: 0.85rem; text-align: center; }
-        .badge-actual {
-            display: inline-block; background: var(--accent); color: white;
-            font-size: 0.72rem; padding: 2px 10px; border-radius: 99px; margin-bottom: 6px; font-weight: 700;
-        }
-
-        /* Grid Principal Mockup Pág. 11 */
-        .main-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; }
-        .hero-card {
-            background: linear-gradient(160deg, #1e1b4b 0%, #0f172a 100%);
-            border: 1px solid var(--border); border-radius: 16px; padding: 32px;
-            display: flex; flex-direction: column; justify-content: space-between; min-height: 360px;
-        }
-        .tag-cat { color: var(--cyan); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .hero-title { font-size: 2.4rem; font-weight: 800; margin: 10px 0; letter-spacing: 0.5px; }
-        .hero-meta { color: var(--text-muted); margin-bottom: 18px; font-size: 0.95rem; }
-        .hero-sinopsis { color: #cbd5e1; line-height: 1.6; margin-bottom: 24px; }
-        .similitud-ring {
-            display: inline-flex; align-items: center; gap: 12px;
-            background: rgba(139, 92, 246, 0.15); border: 1px solid var(--accent);
-            padding: 10px 18px; border-radius: 12px;
-        }
-        .similitud-num { font-size: 1.5rem; font-weight: 800; color: var(--accent-light); }
-
-        .side-panel { display: flex; flex-direction: column; gap: 20px; }
-        .info-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 24px;
-        }
-        .info-card h3 { font-size: 1.05rem; margin-bottom: 10px; }
-        .info-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 16px; }
-        .progress-bar { height: 8px; background: #1e293b; border-radius: 99px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--cyan)); width: 50%; transition: 0.3s; }
-
-        .nav-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        .btn {
-            padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border);
-            background: #1a2035; color: white; font-weight: 600; cursor: pointer; transition: 0.2s;
-        }
-        .btn:hover { border-color: var(--accent); background: #232b47; }
-        .btn-primary { background: var(--accent); border-color: var(--accent); }
-        .btn-primary:hover { background: #7c3aed; }
-        .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #fca5a5; }
-
-        /* Historial (Mockup Pág. 12) */
-        .historial-item {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--bg-card); border: 1px solid var(--border);
-            padding: 18px 24px; border-radius: 12px; margin-bottom: 12px;
-        }
-        .badge-estado {
-            font-size: 0.75rem; padding: 3px 10px; border-radius: 6px;
-            background: rgba(244, 114, 182, 0.15); color: var(--pink); border: 1px solid var(--pink);
-        }
-
-        /* Formulario de inserción en posición */
-        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
-        input, select {
-            background: #0b0d17; border: 1px solid var(--border); color: white;
-            padding: 10px 12px; border-radius: 8px; width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
@@ -138,7 +26,12 @@
     <div class="container">
 
         <!-- VISTA 1: INICIO Y TRAVERSAL DE PUNTEROS (Mockups Págs. 10 y 11) -->
-        <section id="vista-inicio" class="vista activa">
+        <section id="vista-inicio" class="vista">
+            <div style="margin-bottom:18px;">
+    <button class="btn" onclick="volverAPreferencias()">
+        ← Cambiar preferencias
+    </button>
+</div>
             <div class="nodos-visualizer">
                 <div class="nodo-box" id="box-anterior">
                     <small style="color:var(--text-muted)">Nodo Anterior (ant)</small>
@@ -170,30 +63,87 @@
             </div>
 
             <div class="main-grid">
-                <div class="hero-card">
-                    <div>
-                        <span class="tag-cat" id="hero-categoria">CIENCIA FICCIÓN</span>
-                        <h1 class="hero-title" id="hero-titulo">INTERSTELLAR</h1>
-                        <div class="hero-meta" id="hero-meta">Christopher Nolan • 2014</div>
-                        <p class="hero-sinopsis" id="hero-sinopsis"></p>
-                    </div>
+<div class="hero-card">
 
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                        <div class="similitud-ring">
-                            <span class="similitud-num" id="hero-similitud">94%</span>
-                            <div>
-                                <div style="font-size:0.85rem; font-weight:700;">Similitud con tus gustos</div>
-                                <div style="font-size:0.75rem; color:var(--text-muted);" id="hero-estado">Estado: Pendiente</div>
-                            </div>
-                        </div>
+    <div class="hero-content">
 
-                        <div style="display:flex; gap:10px;">
-                            <button class="btn" onclick="marcarEstado('Me gusta ❤️')">❤️ Me gusta</button>
-                            <button class="btn" onclick="marcarEstado('Guardado 🔖')">🔖 Guardar</button>
-                            <button class="btn btn-danger" onclick="eliminarActual()">✕ Descartar (Eliminar Nodo)</button>
-                        </div>
-                    </div>
+        <div class="hero-topline">
+            <span class="tag-cat" id="hero-categoria">
+                PELÍCULAS • CIENCIA FICCIÓN
+            </span>
+        </div>
+
+        <h1 class="hero-title" id="hero-titulo">
+            INTERSTELLAR
+        </h1>
+
+        <div class="hero-meta" id="hero-meta">
+            Christopher Nolan • 2014
+        </div>
+
+        <p class="hero-sinopsis" id="hero-sinopsis">
+            Un grupo de exploradores emprende la misión más importante
+            de la historia de la humanidad.
+        </p>
+
+    </div>
+
+
+    <div class="hero-bottom">
+
+        <div class="similitud-ring">
+
+            <span class="similitud-num"
+                  id="hero-similitud">
+                94%
+            </span>
+
+            <div>
+                <div style="font-size:.85rem;font-weight:700;">
+                    Similitud con tus gustos
                 </div>
+
+                <div
+                    id="hero-estado"
+                    style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">
+                    Estado: Pendiente
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="hero-actions">
+
+            <button
+                class="btn"
+                onclick="marcarEstado('Me gusta ❤️')">
+                ♥ Me gusta
+            </button>
+
+            <button
+                class="btn"
+                onclick="marcarEstado('Guardado 🔖')">
+                🔖 Guardar
+            </button>
+
+            <button
+                class="btn"
+                onclick="abrirDetalle()">
+                ↗ Ver detalles
+            </button>
+
+            <button
+                class="btn btn-danger"
+                onclick="eliminarActual()">
+                ✕ Descartar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 
                 <div class="side-panel">
                     <div class="info-card">
@@ -233,7 +183,296 @@
                 </div>
             </div>
         </section>
+<!-- VISTA 0: PREFERENCIAS INICIALES -->
+<section id="vista-preferencias" class="vista activa">
 
+    <div class="preferencias-wrapper">
+
+        <div class="preferencias-header">
+
+            <div style="
+                display:inline-block;
+                color:var(--cyan);
+                font-size:.8rem;
+                font-weight:700;
+                margin-bottom:12px;
+            ">
+                MOTOR DE RECOMENDACIÓN
+            </div>
+
+            <h1>
+                Encuentra contenido <span>para ti</span>
+            </h1>
+
+            <p>
+                Selecciona tus preferencias para generar recomendaciones
+                basadas en tus gustos.
+            </p>
+
+        </div>
+
+
+        <!-- TIPO DE CONTENIDO -->
+        <div class="preferencias-seccion">
+
+            <h2>¿Qué tipo de contenido te interesa?</h2>
+
+            <div class="tipos-grid">
+
+                <button
+                    class="tipo-card"
+                    data-tipo="Películas"
+                    onclick="seleccionarTipo(this)">
+
+                    <div class="tipo-icono">🎬</div>
+
+                    <h3>Películas</h3>
+
+                    <p>
+                        Cine, documentales y largometrajes.
+                    </p>
+
+                </button>
+
+
+                <button
+                    class="tipo-card"
+                    data-tipo="Música"
+                    onclick="seleccionarTipo(this)">
+
+                    <div class="tipo-icono">🎵</div>
+
+                    <h3>Música</h3>
+
+                    <p>
+                        Canciones, álbumes y artistas.
+                    </p>
+
+                </button>
+
+
+                <button
+                    class="tipo-card"
+                    data-tipo="Libros"
+                    onclick="seleccionarTipo(this)">
+
+                    <div class="tipo-icono">📚</div>
+
+                    <h3>Libros</h3>
+
+                    <p>
+                        Novelas, literatura y obras escritas.
+                    </p>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- CATEGORÍAS -->
+        <div class="preferencias-seccion">
+
+            <h2>Selecciona tus categorías favoritas</h2>
+
+            <div class="categorias-grid">
+
+                <button class="categoria-chip"
+                        data-categoria="Acción"
+                        onclick="toggleCategoria(this)">
+                    ⚡ Acción
+                </button>
+
+                <button class="categoria-chip"
+                        data-categoria="Comedia"
+                        onclick="toggleCategoria(this)">
+                    😄 Comedia
+                </button>
+
+                <button class="categoria-chip"
+                        data-categoria="Drama"
+                        onclick="toggleCategoria(this)">
+                    🎭 Drama
+                </button>
+
+                <button class="categoria-chip"
+                        data-categoria="Terror"
+                        onclick="toggleCategoria(this)">
+                    🌙 Terror
+                </button>
+
+                <button class="categoria-chip"
+                        data-categoria="Fantasía"
+                        onclick="toggleCategoria(this)">
+                    ✨ Fantasía
+                </button>
+
+                <button class="categoria-chip"
+                        data-categoria="Ciencia Ficción"
+                        onclick="toggleCategoria(this)">
+                    🚀 Ciencia ficción
+                </button>
+
+                <button class="categoria-chip"
+                        data-categoria="Romance"
+                        onclick="toggleCategoria(this)">
+                    ♥ Romance
+                </button>
+
+                <button class="categoria-chip"
+                        data-categoria="Aventura"
+                        onclick="toggleCategoria(this)">
+                    🧭 Aventura
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="preferencias-resumen">
+
+            <div>
+                <div>
+                    Tipo seleccionado:
+                    <strong id="resumen-tipo">
+                        Ninguno
+                    </strong>
+                </div>
+
+                <div style="margin-top:5px;">
+                    Categorías:
+                    <strong id="resumen-categorias">
+                        Ninguna
+                    </strong>
+                </div>
+            </div>
+
+
+            <button
+                class="btn btn-primary btn-comenzar"
+                onclick="iniciarRecomendaciones()">
+
+                Ver recomendaciones →
+            </button>
+
+        </div>
+
+        <div
+            id="preferencia-error"
+            class="preferencia-error">
+        </div>
+
+    </div>
+
+</section>
+        <!-- VISTA DETALLE DE RECOMENDACIÓN -->
+<section id="vista-detalle" class="vista">
+
+    <button class="btn" onclick="volverAlInicio()" style="margin-bottom:20px;">
+        ← Volver al motor de recomendación
+    </button>
+
+    <div class="detalle-grid">
+
+        <div class="detalle-poster">
+            <div class="poster-placeholder">
+                🎬
+            </div>
+        </div>
+
+        <div class="detalle-contenido">
+
+            <span class="tag-cat" id="detalle-categoria">
+                CIENCIA FICCIÓN
+            </span>
+
+            <h1 class="detalle-titulo" id="detalle-titulo">
+                INTERSTELLAR
+            </h1>
+
+            <div class="hero-meta" id="detalle-meta">
+                Christopher Nolan • 2014
+            </div>
+
+            <p class="detalle-sinopsis" id="detalle-sinopsis"></p>
+
+            <div class="detalle-similitud">
+
+                <div class="detalle-similitud-header">
+                    <h3>Similitud con tus gustos</h3>
+
+                    <span id="detalle-similitud">
+                        94%
+                    </span>
+                </div>
+
+                <div class="progress-bar">
+                    <div
+                        class="progress-fill"
+                        id="detalle-barra">
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="info-card detalle-explicacion">
+
+                <h3>¿Por qué te lo recomendamos?</h3>
+
+                <p>
+                    Este contenido presenta características relacionadas
+                    con tus preferencias y con las recomendaciones
+                    previamente evaluadas.
+                </p>
+
+                <div class="razon-recomendacion">
+                    <span>🚀 Coincidencia de categoría</span>
+                    <strong id="detalle-razon-categoria"></strong>
+                </div>
+
+                <div class="razon-recomendacion">
+                    <span>★ Puntaje de similitud</span>
+                    <strong id="detalle-razon-similitud"></strong>
+                </div>
+
+                <div class="razon-recomendacion">
+                    <span>↔ Nodo actual de la lista</span>
+                    <strong id="detalle-posicion"></strong>
+                </div>
+
+            </div>
+
+
+            <div class="detalle-acciones">
+
+                <button
+                    class="btn btn-primary"
+                    onclick="marcarEstado('Me gusta ❤️')">
+                    ♥ Me gusta
+                </button>
+
+                <button
+                    class="btn"
+                    onclick="marcarEstado('Guardado 🔖')">
+                    🔖 Guardar
+                </button>
+
+                <button
+                    class="btn btn-danger"
+                    onclick="eliminarActual(); volverAlInicio();">
+                    ✕ Descartar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
         <!-- VISTA 2: HISTORIAL DE RECOMENDACIONES (Mockup Pág. 12) -->
         <section id="vista-historial" class="vista">
             <h2 style="margin-bottom: 18px;">Historial de recomendaciones en la Lista Enlazada</h2>
@@ -272,122 +511,6 @@
         </section>
 
     </div>
-
-    <script>
-        let estadoGlobal = null;
-
-        async function cargarEstado() {
-            const res = await fetch('/api/lista');
-            estadoGlobal = await res.json();
-            renderizarUI();
-        }
-
-        function renderizarUI() {
-            const { posicionActual, longitud, nodoAnterior, nodoActual, nodoSiguiente, listaCompleta } = estadoGlobal;
-
-            // Actualizar visualizador de punteros (Ant <-> Actual <-> Sig)
-            document.getElementById('ant-titulo').textContent = nodoAnterior ? nodoAnterior.titulo : 'NULL';
-            document.getElementById('ant-cat').textContent = nodoAnterior ? `Similitud: ${nodoAnterior.puntajeSimilitud}%` : 'Cabeza (Sin predecesor)';
-
-            document.getElementById('sig-titulo').textContent = nodoSiguiente ? nodoSiguiente.titulo : 'NULL';
-            document.getElementById('sig-cat').textContent = nodoSiguiente ? `Similitud: ${nodoSiguiente.puntajeSimilitud}%` : 'Cola (Sin sucesor)';
-
-            if (nodoActual) {
-                document.getElementById('act-mini-titulo').textContent = nodoActual.titulo;
-                document.getElementById('act-mini-sim').textContent = `★ Similitud: ${nodoActual.puntajeSimilitud}%`;
-
-                document.getElementById('hero-categoria').textContent = `${nodoActual.tipoContenido} • ${nodoActual.categoria}`;
-                document.getElementById('hero-titulo').textContent = nodoActual.titulo.toUpperCase();
-                document.getElementById('hero-meta').textContent = `${nodoActual.autorDirector} • ${nodoActual.anio}`;
-                document.getElementById('hero-sinopsis').textContent = nodoActual.sinopsis;
-                document.getElementById('hero-similitud').textContent = `${nodoActual.puntajeSimilitud}%`;
-                document.getElementById('hero-estado').textContent = `Estado: ${nodoActual.estado}`;
-            } else {
-                document.getElementById('act-mini-titulo').textContent = 'Lista Vacía (NULL)';
-                document.getElementById('hero-titulo').textContent = 'SIN NODOS';
-                document.getElementById('hero-sinopsis').textContent = 'La lista doblemente enlazada no contiene elementos.';
-            }
-
-            document.getElementById('lbl-posicion').textContent = `Método Actual(): Posición ${posicionActual}`;
-            document.getElementById('lbl-longitud').textContent = `Método Longitud(): ${longitud} nodos`;
-            const pct = longitud > 0 ? (posicionActual / longitud) * 100 : 0;
-            document.getElementById('barra-progreso').style.width = `${pct}%`;
-
-            // Renderizar Historial (Mockup Pág. 12)
-            const contHist = document.getElementById('contenedor-historial');
-            contHist.innerHTML = listaCompleta.map(item => `
-                <div class="historial-item" style="${item.esActual ? 'border-color:var(--accent);' : ''}">
-                    <div>
-                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
-                            <span style="color:var(--cyan); font-size:0.8rem; font-weight:700;">Nodo #${item.posicion}</span>
-                            <span class="badge-estado">${item.dato.estado}</span>
-                            ${item.esActual ? '<span class="badge-actual">Puntero Actual</span>' : ''}
-                        </div>
-                        <h3 style="font-size:1.2rem;">${item.dato.titulo}</h3>
-                        <small style="color:var(--text-muted)">
-                            ${item.dato.autorDirector} • ${item.dato.anio} • Similitud: ${item.dato.puntajeSimilitud}%
-                        </small>
-                    </div>
-                    <div style="display:flex; gap:8px;">
-                        <button class="btn btn-danger" onclick="eliminarPorPosicion(${item.posicion})">
-                            Eliminar(${item.posicion})
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function navegar(direccion) {
-            const res = await fetch(`/api/lista/${direccion}`, { method: 'POST' });
-            estadoGlobal = await res.json();
-            renderizarUI();
-        }
-
-        async function marcarEstado(estado) {
-            const res = await fetch(`/api/lista/estado/${encodeURIComponent(estado)}`, { method: 'POST' });
-            estadoGlobal = await res.json();
-            renderizarUI();
-        }
-
-        async function eliminarActual() {
-            if (!estadoGlobal || estadoGlobal.posicionActual === 0) return;
-            await eliminarPorPosicion(estadoGlobal.posicionActual);
-        }
-
-        async function eliminarPorPosicion(pos) {
-            const res = await fetch(`/api/lista/eliminar/${pos}`, { method: 'DELETE' });
-            estadoGlobal = await res.json();
-            renderizarUI();
-        }
-
-        async function insertarNodo() {
-            const body = {
-                titulo: document.getElementById('ins-titulo').value || 'Nuevo Contenido',
-                tipoContenido: 'Películas',
-                categoria: 'Ciencia Ficción',
-                autorDirector: document.getElementById('ins-autor').value || 'Director Invitado',
-                anio: 2026,
-                sinopsis: 'Recomendación insertada dinámicamente en la Lista Doblemente Enlazada.',
-                puntajeSimilitud: parseInt(document.getElementById('ins-sim').value) || 95,
-                posicion: parseInt(document.getElementById('ins-pos').value) || 1
-            };
-            const res = await fetch('/api/lista/insertar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            estadoGlobal = await res.json();
-            renderizarUI();
-        }
-
-        function cambiarVista(nombre, btn) {
-            document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
-            document.getElementById(`vista-${nombre}`).classList.add('activa');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        cargarEstado();
-    </script>
+     <script src="/js/app.js"></script>
 </body>
 </html>
