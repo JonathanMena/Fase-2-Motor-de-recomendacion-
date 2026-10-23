@@ -1,9 +1,6 @@
 # Casos de prueba: Lista doblemente enlazada
 
 Proyecto: Motor de recomendación de contenido (Fase 2)
-Autor: Fernando Alexis Alvarado Calderón
-Rama: pruebas-fernando
-Fecha de ejecución: (completar)
 
 ## Cómo se ejecutaron las pruebas
 
@@ -15,7 +12,7 @@ Las pruebas son manuales, sobre la interfaz web en http://localhost:5150. Para v
 
 Los valores se leen en el panel "Mecánica de Traversal" (Actual y Longitud), en las tarjetas de nodo anterior, actual y siguiente, y en la vista Historial.
 
-Notación: "Siguiente x3" significa presionar el botón Siguiente tres veces. "Historial > Eliminar(n)" es el botón de eliminar del nodo n en la vista Historial. Las capturas se guardan en docs/capturas/ con el nombre del caso (por ejemplo, CP-06.png).
+Notación: "Siguiente x3" significa presionar el botón Siguiente tres veces. "Historial > Eliminar(n)" es el botón de eliminar del nodo n en la vista Historial. Las capturas se guardan en docs/capturas/ con el nombre del caso
 
 Datos iniciales (7 nodos, Actual = 1):
 
