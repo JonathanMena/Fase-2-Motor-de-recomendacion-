@@ -32,8 +32,8 @@
 
 ## 7. Desfase de posicionActual en ListaDoble
 - Cómo se detectó: lectura del código y casos CP-06, CP-08, CP-12 y CP-15 (4 de 18 fallaron). En todos, la longitud y el orden de los nodos fueron correctos, pero Actual quedó desfasado una unidad y el Historial marcó Puntero Actual en otro nodo. El detalle está en docs/casos-de-prueba.md, sección Defectos encontrados.
-- Cómo se abordará: incrementar posicionActual al insertar en una posición menor o igual a la del nodo actual, y decrementarla al eliminar un nodo anterior al actual; luego repetir los casos.
-- Estado: pendiente de corrección.
+- Cómo se abordó: se incrementó posicionActual al insertar en una posición menor o igual a la del nodo actual (ramas de inserción al inicio y en posición intermedia) y se decrementó al eliminar un nodo anterior al actual (ramas de la cabeza y de posición intermedia). Son 6 líneas agregadas en ListaDoble.cs, sin quitar ninguna.
+- Estado: resuelta. En la re-ejecución pasaron CP-06, CP-08, CP-12 y CP-15, y los casos de control CP-07, CP-10, CP-11, CP-14, CP-16 y CP-17 (ver la sección de re-ejecución en docs/casos-de-prueba.md).
 
 ## 8. bd_recomienda.json cambia al usar la aplicación
 - Cómo se detectó: git mostraba el archivo como modificado después de las pruebas, y tras el CP-16 quedó con un solo registro.
