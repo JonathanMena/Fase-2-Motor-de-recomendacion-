@@ -74,4 +74,42 @@ Formulario "Insertar Recomendación por Posición": título, director, similitud
 
 ## Defectos encontrados
 
-(Por cada caso que falló: qué ocurrió, qué se esperaba y la causa probable. Pasan a la bitácora de dificultades.)
+Las pruebas detectaron un único defecto, que explica los 4 casos fallidos (CP-06, CP-08, CP-12 y CP-15). Los otros 14 casos pasaron.
+
+Estado: pendiente de corrección (Paso 4).
+Gravedad: media. La longitud, el orden de los nodos y los enlaces quedan correctos; el número de posición actual y lo que depende de él no.
+
+| Caso | Operación | Actual esperado | Actual obtenido | Evidencia |
+|---|---|---|---|---|
+| CP-06 | Insertar en la posición 1 con el puntero en la 1 | 2 | 1 | CP-06.png |
+| CP-08 | Insertar en la posición 3 con el puntero en la 6 | 7 | 6 | CP-08.png |
+| CP-12 | Eliminar la posición 1 con el puntero en la 3 | 2 | 3 | CP-12.png |
+| CP-15 | Eliminar la posición 2 con el puntero en la 5 | 4 | 5 | CP-15.png |
+
+¿Qué se observó?, en los cuatro casos la longitud y la posición de los nodos en el Historial fueron correctas (por ejemplo, Prueba A en #1 en el CP-06 e Inception en #2 en el CP-12), pero el valor de Actual quedó desfasado una unidad. Por eso el Historial marcó Puntero Actual en un nodo distinto al actual (The Matrix #3 en el CP-12 y Arrival #5 en el CP-15). En los casos donde se revisó la pantalla Inicio (CP-06 y CP-15), la tarjeta central mostró el nodo correcto: el puntero apuntaba bien y solo el número estaba mal.
+
+Causa: los métodos Insertar (ramas de inserción al inicio y en posición intermedia) y Eliminar (rama de la cabeza cuando el eliminado no es el actual, y rama intermedia cuando el eliminado está antes del actual) modifican la lista pero no actualizan posicionActual.
+
+Alcance: las operaciones que no desplazan al nodo actual funcionaron. Insertar después del nodo actual (CP-07), al final (CP-09) y antes del último nodo (CP-10) pasaron. Eliminar el propio nodo actual en la cabeza, la cola o una posición intermedia (CP-11, CP-13 y CP-14) pasó. Vaciar la lista e insertar en una lista vacía (CP-16 y CP-17) pasó.
+
+Consecuencia probable (por lectura del código, no probada en esta ronda): el botón Descartar usa el valor de Actual como la posición a eliminar. Con el contador desfasado, eliminaría un nodo distinto al que muestra la tarjeta central
+
+Corrección propuesta: incrementar posicionActual al insertar en una posición menor o igual a la del nodo actual, y decrementarla al eliminar un nodo que está antes del actual. Después se repetirán los casos CP-06, CP-08, CP-12 y CP-15 y se registrará el resultado en la sección de re-ejecución.
+
+## Re-ejecución tras la corrección de posicionActual
+
+
+| ID | Antes de la corrección | Después de la corrección | Estado |
+|---|---|---|---|
+| CP-06 | Actual = 1 (esperaba 2) | Actual = 2| Pasó |
+| CP-08 | Actual = 6 (esperaba 7) | Actual = 7| Pasó |
+| CP-12 | Actual = 3 (esperaba 2) | Actual = 2| Pasó |
+| CP-15 | Actual = 5 (esperaba 4) | Actual = 4| Pasó |
+| CP-07 | Pasó | Prueba B en #4, The Matrix en #5, Actual = 1 | Pasó |
+| CP-10 | Pasó | Prueba E en #7, BladeRunner en #8| Pasó |
+| CP-11 | Pasó | Nodo Actual: Interestellar en #1| Pasó |
+| CP-14 | Pasó | Nodo Actual: Dune Part Two en #4| Pasó |
+| CP-16 | Pasó | Tras 7 clicks en "Descarte" Nodo Actual: Lista Vacía (Null)| Pasó |
+| CP-17 | Pasó | Anterior y siguiente: NULL, long = 1, Posición = 1| Pasó |
+
+No se repitieron CP-01 a CP-05, CP-09, CP-13 y CP-18, porque no ejecutan las ramas modificadas de Insertar y Eliminar.
