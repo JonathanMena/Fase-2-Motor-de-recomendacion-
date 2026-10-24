@@ -1,4 +1,4 @@
-# Bitácora de dificultades - Fernando Calderón
+# Bitácora de dificultades 
 
 ## 1. Versión de .NET incompatible
 - Cómo se detectó: al ejecutar dotnet run, la terminal indicó que faltaba el framework Microsoft.AspNetCore.App 8.0 y ofreció un enlace de descarga.
