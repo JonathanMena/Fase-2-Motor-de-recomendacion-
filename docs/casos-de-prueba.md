@@ -30,11 +30,11 @@ Datos iniciales (7 nodos, Actual = 1):
 
 | ID | Caso | Pasos | Resultado esperado | Resultado obtenido | Estado |
 |---|---|---|---|---|---|
-| CP-01 | Estado inicial | Reiniciar y cargar la página | Longitud = 7, Actual = 1, anterior = NULL, actual = Nuevo Contenido, siguiente = Interstellar | | |
-| CP-02 | Siguiente y Anterior | Desde Actual = 1: Siguiente; luego Anterior | Tras Siguiente: Actual = 2 (Interstellar), anterior = Nuevo Contenido, siguiente = Inception. Tras Anterior: Actual = 1 | | |
-| CP-03 | Anterior en la cabeza | Con Actual = 1, presionar Anterior | No cambia nada: Actual = 1, anterior = NULL | | |
-| CP-04 | Siguiente en la cola | Siguiente x6 hasta Actual = 7; presionar Siguiente una vez más | Actual = 7 (Blade Runner 2049), siguiente = NULL | | |
-| CP-05 | Inicio | Desde Actual = 7, presionar "Ir a Cabeza" | Actual = 1 (Nuevo Contenido) | | |
+| CP-01 | Estado inicial | Reiniciar y cargar la página | Longitud = 7, Actual = 1, anterior = NULL, actual = Nuevo Contenido, siguiente = Interstellar | Longitud = 7, Actual= 1, anterior = NULL, Actual = Nuevo contenido; siguiente = Interestellar | Pasó |
+| CP-02 | Siguiente y Anterior | Desde Actual = 1: Siguiente; luego Anterior | Tras Siguiente: Actual = 2 (Interstellar), anterior = Nuevo Contenido, siguiente = Inception. Tras Anterior: Actual = 1 |Actual= 2 (interestellar), anterior = Nuevo Contenido, siguiente = inception, tras anterior: Actual = 1 | Pasó |
+| CP-03 | Anterior en la cabeza | Con Actual = 1, presionar Anterior | No cambia nada: Actual = 1, anterior = NULL | Anterior, no cambia nada, Actual = 1, anterior = NULL, siguiente = Interestellar | Pasó |
+| CP-04 | Siguiente en la cola | Siguiente x6 hasta Actual = 7; presionar Siguiente una vez más | Actual = 7 (Blade Runner 2049), siguiente = NULL | Siguiente 6 veces, actual = 7, siguiente = Null, anterior = Arrival | Pasó |
+| CP-05 | Inicio | Desde Actual = 7, presionar "Ir a Cabeza" | Actual = 1 (Nuevo Contenido) | Desde actual = 7, "Ir a cabeza", Actual = Nuevo contenido | Pasó |
 
 ## Bloque 2: Inserción (reiniciar antes de cada caso)
 
@@ -42,11 +42,11 @@ Formulario "Insertar Recomendación por Posición": título, director, similitud
 
 | ID | Caso | Pasos | Resultado esperado | Resultado obtenido | Estado |
 |---|---|---|---|---|---|
-| CP-06 | Insertar al inicio con el puntero en la cabeza | Con Actual = 1: título "Prueba A", posición 1 | Longitud = 8. Prueba A en #1 y Nuevo Contenido en #2. El nodo actual sigue siendo Nuevo Contenido, por lo que Actual = 2 y su anterior = Prueba A | | |
-| CP-07 | Insertar en medio, después del puntero | Con Actual = 1: "Prueba B", posición 4 | Longitud = 8. Prueba B en #4 y The Matrix en #5. Actual = 1 sin cambios | | |
-| CP-08 | Insertar en medio, antes del puntero | Siguiente x5 (Actual = 6, Arrival); "Prueba C", posición 3 | Longitud = 8. Prueba C en #3. Arrival pasa a #7 y sigue siendo el nodo actual, por lo que Actual = 7 | | |
-| CP-09 | Insertar al final | "Prueba D", posición 8 | Longitud = 8. Prueba D en #8 (nueva cola) y Blade Runner 2049 en #7. Actual = 1 | | |
-| CP-10 | Insertar con posición igual a la longitud | "Prueba E", posición 7 | Longitud = 8. Prueba E en #7 y Blade Runner 2049 pasa a #8 (se inserta antes del último, no al final) | | |
+| CP-06 | Insertar al inicio con el puntero en la cabeza | Con Actual = 1: título "Prueba A", posición 1 | Longitud = 8. Prueba A en #1 y Nuevo Contenido en #2. El nodo actual sigue siendo Nuevo Contenido, por lo que Actual = 2 y su anterior = Prueba A | Longitud = 8, Prueba A en #1, Nuevo contenido en #2, Actual = 1 (esperaba 2), anterior = Prueba A, Sig = Interestellar | Falló |
+| CP-07 | Insertar en medio, después del puntero | Con Actual = 1: "Prueba B", posición 4 | Longitud = 8. Prueba B en #4 y The Matrix en #5. Actual = 1 sin cambios | Longitud = 8, Pueba B en #4, The Matrix en #5, Puntero actual #4| Pasó |
+| CP-08 | Insertar en medio, antes del puntero | Siguiente x5 (Actual = 6, Arrival); "Prueba C", posición 3 | Longitud = 8. Prueba C en #3. Arrival pasa a #7 y sigue siendo el nodo actual, por lo que Actual = 7 | Longitud = 8, Prueba C en #3, Arrival en #7, Puntero actual = 6 (esperaba 7) | Falló |
+| CP-09 | Insertar al final | "Prueba D", posición 8 | Longitud = 8. Prueba D en #8 (nueva cola) y Blade Runner 2049 en #7. Actual = 1 | Longitud =8, Prueba D en #8 Blade Runner 2049 #7, Puntero Actual = 1 | Pasó |
+| CP-10 | Insertar con posición igual a la longitud | "Prueba E", posición 7 | Longitud = 8. Prueba E en #7 y Blade Runner 2049 pasa a #8 (se inserta antes del último, no al final) | Longitud = 8, Prueba E en #7, Blade Runner 2049 en $8 | Pasó |
 
 ## Bloque 3: Eliminación (reiniciar antes de cada caso, salvo CP-17)
 
