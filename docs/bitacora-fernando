@@ -1,0 +1,41 @@
+# Bitácora de dificultades - Fernando Calderón
+
+## 1. Versión de .NET incompatible
+- Cómo se detectó: al ejecutar dotnet run, la terminal indicó que faltaba el framework Microsoft.AspNetCore.App 8.0 y ofreció un enlace de descarga.
+- Cómo se abordó: se instaló el SDK de .NET 8 y se volvió a ejecutar; la aplicación arrancó en http://localhost:5150.
+- Estado: resuelta.
+
+## 2. git no se reconocía en la terminal de VS Code
+- Cómo se detectó: al ejecutar git restore bd_recomienda.json, PowerShell respondió que el término git no se reconoce.
+- Cómo se abordó: VS Code se había abierto antes de que el sistema registrara git. Se cerró y se abrió de nuevo, y los comandos funcionaron.
+- Estado: resuelta.
+
+## 3. La aplicación abrió con la lista vacía
+- Cómo se detectó: la pantalla mostró Lista Vacía, SIN NODOS y 0 nodos al abrir la página.
+- Cómo se abordó: se restauró bd_recomienda.json con git restore y se reinició el servidor; la lista cargó los 7 nodos originales. Causa probable: el archivo de datos había quedado sin registros tras pruebas anteriores. No se verificó su contenido antes de restaurarlo.
+- Estado: resuelta. Queda por decidir en el equipo qué debe hacer la aplicación si el archivo queda vacío.
+
+## 4. El servidor seguía activo en una terminal que ya no se veía
+- Cómo se detectó: al intentar reiniciar, Ctrl + C mostró solo ^C sobre un prompt vacío y la página seguía cargando en el navegador.
+- Cómo se abordó: el servidor corría en otra terminal, que se había ocultado. Se resolvió al reiniciar el equipo. Sin reiniciar, el procedimiento es buscar el proceso con netstat -ano | findstr :5150 y cerrarlo con taskkill /PID número /F.
+- Estado: resuelta. Lección: después de detener el servidor, comprobar en el navegador que la página dejó de cargar.
+
+## 5. El formulario de inserción no tiene etiquetas
+- Cómo se detectó: al preparar el CP-07, el valor 4 quedó en la caja de similitud (la tercera) y 1 en la de posición, porque las cajas numéricas no muestran etiquetas. Se vio antes de ejecutar.
+- Cómo se abordó: se corrigieron los valores y se fijó la regla de que la posición es siempre la última caja de la derecha.
+- Estado: mitigada. Mejora propuesta: agregar etiquetas al formulario.
+
+## 6. CP-07 invalidado por un punto de partida incorrecto
+- Cómo se detectó: la primera ejecución dejó la etiqueta Puntero Actual en el nodo #4, cuando el esperado era Actual = 1. Se concluyó que el caso no había partido de Actual = 1.
+- Cómo se abordó: se repitió desde un reinicio limpio, comprobando antes Longitud = 7 y Actual = 1. La segunda ejecución pasó y reemplazó a la captura anterior.
+- Estado: resuelta. Lección: verificar el punto de partida antes de cada caso.
+
+## 7. Desfase de posicionActual en ListaDoble
+- Cómo se detectó: lectura del código y casos CP-06, CP-08, CP-12 y CP-15 (4 de 18 fallaron). En todos, la longitud y el orden de los nodos fueron correctos, pero Actual quedó desfasado una unidad y el Historial marcó Puntero Actual en otro nodo. El detalle está en docs/casos-de-prueba.md, sección Defectos encontrados.
+- Cómo se abordará: incrementar posicionActual al insertar en una posición menor o igual a la del nodo actual, y decrementarla al eliminar un nodo anterior al actual; luego repetir los casos.
+- Estado: pendiente de corrección.
+
+## 8. bd_recomienda.json cambia al usar la aplicación
+- Cómo se detectó: git mostraba el archivo como modificado después de las pruebas, y tras el CP-16 quedó con un solo registro.
+- Cómo se abordó: git restore bd_recomienda.json antes de cada reinicio y de cada commit, y git add solo de la carpeta docs, nunca git add .
+- Estado: mitigada. Mejora propuesta: que los datos de prueba no vivan en el archivo versionado.
