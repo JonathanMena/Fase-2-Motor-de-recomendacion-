@@ -109,7 +109,6 @@ Corrección aplicada: se incrementa posicionActual al insertar en una posición 
 | CP-10 | Pasó | Prueba E en #7, Blade Runner en #8| Pasó |
 | CP-11 | Pasó | Nodo Actual: Interstellar en #1| Pasó |
 | CP-14 | Pasó | Nodo Actual: Dune Part Two en #4| Pasó |
-| CP-16 | Pasó | Tras 7 clicks en "Descarte" Nodo Actual: Lista Vacía (Null)| Pasó |
-| CP-17 | Pasó | Anterior y siguiente: NULL, long = 1, Posición = 1| Pasó |
-
+| CP-16 | Pasó | 7 clics Descartar: Longitud = 0; Actual= Lista Vacía (NULL) | Pasó |
+| CP-17 | Pasó | Anterior/siguiente = NULL; Longitud = 1; Actual = 1 | Pasó |
 No se repitieron CP-01 a CP-05, CP-09, CP-13 y CP-18, porque no ejecutan las ramas modificadas de Insertar y Eliminar.
