@@ -110,6 +110,7 @@ namespace MotorRecomendacion
                 primerNodo.Anterior = nuevoNodo;
                 primerNodo = nuevoNodo;
                 totalNodos++;
+                if (posicionActual >= posicion) posicionActual++;
                 return true;
             }
 
@@ -128,6 +129,7 @@ namespace MotorRecomendacion
             punteroAuxiliar.Anterior = nuevoNodo;
 
             totalNodos++;
+            if (posicionActual >= posicion) posicionActual++;
             return true;
         }
 
@@ -159,6 +161,8 @@ namespace MotorRecomendacion
 
                 if (punteroActual == nodoAEliminar)
                     punteroActual = primerNodo;
+                else
+                    posicionActual--;
 
                 totalNodos--;
                 return true;
@@ -196,6 +200,8 @@ namespace MotorRecomendacion
 
             if (punteroActual == punteroAuxiliar)
                 punteroActual = nodoSig;
+            else if (posicion < posicionActual)
+                posicionActual--;
 
             totalNodos--;
             return true;
