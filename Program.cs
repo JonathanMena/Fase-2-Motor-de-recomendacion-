@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using MotorRecomendacion;
+using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
@@ -102,10 +103,38 @@ app.MapPost("/api/lista/insertar", (InsercionRequest req) =>
     return Results.Ok(ObtenerEstadoMemoria());
 });
 
+
+app.MapPost("/api/recomendaciones/calcular", (
+    PreferenciasRequest preferencias) =>
+{
+    var contenidos = new List<Recomendacion>();
+
+    for (int i = 1; i <= listaRecomendaciones.Longitud(); i++)
+    {
+        contenidos.Add(listaRecomendaciones.Obtener(i));
+    }
+
+    var resultado = global::MotorRecomendacion.MotorRecomendacion.CalcularRecomendaciones(
+        contenidos,
+        preferencias.TipoPreferido,
+        preferencias.CategoriasPreferidas ?? new List<string>()
+    );
+
+    return Results.Ok(resultado);
+});
+
+
+
 app.Run("http://localhost:5150");
 
 public record InsercionRequest(
     string Titulo, string TipoContenido, string Categoria,
     string AutorDirector, int Anio, string Sinopsis,
     int PuntajeSimilitud, int Posicion
+);
+
+
+public record PreferenciasRequest(
+    string TipoPreferido,
+    List<string>? CategoriasPreferidas
 );
