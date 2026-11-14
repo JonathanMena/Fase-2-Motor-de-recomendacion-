@@ -2,14 +2,107 @@
         let estadoGlobal = null;
         let tipoSeleccionado = null;
         let categoriasSeleccionadas = [];
-        function seleccionarTipo(elemento) {
+        const categoriasPorTipo = {
+
+    'Películas': [
+        'Acción',
+        'Comedia',
+        'Drama',
+        'Terror',
+        'Fantasía',
+        'Ciencia Ficción',
+        'Romance',
+        'Aventura'
+    ],
+
+    'Música': [
+        'Pop',
+        'Rock',
+        'Electrónica',
+        'Hip-Hop',
+        'Clásica',
+        'Jazz',
+        'Indie',
+        'Soundtrack'
+    ],
+
+    'Libros': [
+        'Ciencia Ficción',
+        'Fantasía',
+        'Misterio',
+        'Romance',
+        'Terror',
+        'Aventura',
+        'Historia',
+        'No Ficción'
+    ]
+};
+
+function renderizarCategorias(tipo) {
+
+    const contenedor =
+        document.getElementById(
+            'categorias-grid'
+        );
+
+
+    categoriasSeleccionadas = [];
+
+
+    const categorias =
+        categoriasPorTipo[tipo] || [];
+
+
+    if (categorias.length === 0) {
+
+        contenedor.innerHTML = `
+            <span style="color:var(--text-muted);">
+                Primero selecciona un tipo de contenido.
+            </span>
+        `;
+
+        return;
+    }
+
+
+    contenedor.innerHTML =
+        categorias.map(
+            categoria => `
+                <button
+                    class="categoria-chip"
+                    data-categoria="${categoria}"
+                    onclick="toggleCategoria(this)">
+
+                    ${categoria}
+
+                </button>
+            `
+        ).join('');
+}
+function seleccionarTipo(elemento) {
 
     document.querySelectorAll('.tipo-card')
-        .forEach(card => card.classList.remove('seleccionado'));
+        .forEach(
+            card =>
+                card.classList.remove(
+                    'seleccionado'
+                )
+        );
 
-    elemento.classList.add('seleccionado');
 
-    tipoSeleccionado = elemento.dataset.tipo;
+    elemento.classList.add(
+        'seleccionado'
+    );
+
+
+    tipoSeleccionado =
+        elemento.dataset.tipo;
+
+
+    renderizarCategorias(
+        tipoSeleccionado
+    );
+
 
     actualizarResumenPreferencias();
 }
@@ -51,66 +144,153 @@ function actualizarResumenPreferencias() {
 }
 async function iniciarRecomendaciones() {
 
-    const error = document.getElementById('preferencia-error');
+    const error =
+        document.getElementById(
+            'preferencia-error'
+        );
 
     if (!tipoSeleccionado) {
+
         error.textContent =
             'Selecciona primero un tipo de contenido.';
+
         return;
     }
+
 
     if (categoriasSeleccionadas.length === 0) {
+
         error.textContent =
             'Selecciona al menos una categoría.';
+
         return;
     }
 
+
     const preferencias = {
-        tipoPreferido: tipoSeleccionado,
-        categoriasPreferidas: categoriasSeleccionadas
+
+        tipoPreferido:
+            tipoSeleccionado,
+
+        categoriasPreferidas:
+            categoriasSeleccionadas
     };
+
 
     try {
 
-        const respuesta = await fetch(
-            '/api/preferencias/1',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(preferencias)
-            }
-        );
+        error.textContent =
+            'Generando recomendaciones...';
+
+
+        const respuesta =
+            await fetch(
+                '/api/recomendaciones/calcular/1',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body:
+                        JSON.stringify(
+                            preferencias
+                        )
+                }
+            );
+
 
         if (!respuesta.ok) {
+
+            const mensaje =
+                await respuesta.text();
+
+            console.error(mensaje);
+
             throw new Error(
-                'No se pudieron guardar las preferencias'
+                'No fue posible calcular las recomendaciones'
             );
         }
 
-        document.querySelectorAll('.vista')
-            .forEach(v => v.classList.remove('activa'));
 
-        document.getElementById('vista-inicio')
-            .classList.add('activa');
+        // La API devuelve el NUEVO estado
+        // de la ListaDoble
+        estadoGlobal =
+            await respuesta.json();
 
-        document.querySelectorAll('.nav-btn')
-            .forEach(b => b.classList.remove('active'));
 
-        const botonInicio =
-            document.querySelector('.nav-btn');
+        if (
+            !estadoGlobal ||
+            estadoGlobal.longitud === 0
+        ) {
 
-        if (botonInicio) {
-            botonInicio.classList.add('active');
+            error.textContent =
+                'No encontramos contenido para estas preferencias.';
+
+            return;
         }
 
-    } catch (errorFetch) {
 
-        console.error(errorFetch);
+        // Refrescar toda la interfaz
+        renderizarUI();
+
+
+        // Mostrar Inicio
+        document.querySelectorAll('.vista')
+            .forEach(
+                v =>
+                    v.classList.remove(
+                        'activa'
+                    )
+            );
+
+
+        document
+            .getElementById(
+                'vista-inicio'
+            )
+            .classList.add(
+                'activa'
+            );
+
+
+        document.querySelectorAll('.nav-btn')
+            .forEach(
+                b =>
+                    b.classList.remove(
+                        'active'
+                    )
+            );
+
+
+        const botonInicio =
+            document.querySelector(
+                '.nav-btn'
+            );
+
+
+        if (botonInicio) {
+
+            botonInicio.classList.add(
+                'active'
+            );
+        }
+
+
+        error.textContent = '';
+
+    }
+    catch (err) {
+
+        console.error(
+            'Error generando recomendaciones:',
+            err
+        );
 
         error.textContent =
-            'Ocurrió un error al guardar las preferencias.';
+            'No fue posible generar las recomendaciones.';
     }
 }
         async function cargarEstado() {

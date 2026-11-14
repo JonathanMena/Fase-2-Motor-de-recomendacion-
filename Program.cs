@@ -490,40 +490,85 @@ app.MapGet(
 // ======================================================
 
 app.MapPost(
-    "/api/recomendaciones/calcular",
-    (
+    "/api/recomendaciones/calcular/{idUsuario:int}",
+    async (
+        int idUsuario,
         PreferenciasRequest preferencias) =>
     {
-        var contenidos =
-            new List<Recomendacion>();
-
-
-        for (
-            int i = 1;
-            i <= listaRecomendaciones.Longitud();
-            i++)
+        if (
+            string.IsNullOrWhiteSpace(
+                preferencias.TipoPreferido) ||
+            preferencias.CategoriasPreferidas == null ||
+            preferencias.CategoriasPreferidas.Count == 0)
         {
-            contenidos.Add(
-                listaRecomendaciones.Obtener(i)
+            return Results.BadRequest(
+                new
+                {
+                    mensaje =
+                        "Debe seleccionar un tipo " +
+                        "y al menos una categoría"
+                }
             );
         }
 
 
-        var resultado =
+        // 1. Guardar preferencias en SQL
+        await preferenciaRepository
+            .GuardarAsync(
+                idUsuario,
+                preferencias.TipoPreferido,
+                preferencias.CategoriasPreferidas
+            );
+
+
+        // 2. Obtener nuevamente el catálogo desde SQL.
+        // Este método ya excluye contenidos descartados.
+        var catalogo =
+            await contenidoRepository
+                .ObtenerTodosAsync(idUsuario);
+
+
+        // 3. Calcular recomendaciones
+        var recomendaciones =
             global::MotorRecomendacion
                 .MotorRecomendacion
                 .CalcularRecomendaciones(
-                    contenidos,
+                    catalogo,
                     preferencias.TipoPreferido,
                     preferencias.CategoriasPreferidas
-                        ?? new List<string>()
                 );
 
 
-        return Results.Ok(resultado);
+        // 4. Reconstruir la Lista Doblemente Enlazada
+        listaRecomendaciones =
+            new ListaDoble();
+
+
+        foreach (var recomendacion
+                 in recomendaciones)
+        {
+            listaRecomendaciones
+                .Añadir(recomendacion);
+        }
+
+
+        listaRecomendaciones.Inicio();
+
+
+        Console.WriteLine(
+            $"Motor generado -> " +
+            $"{preferencias.TipoPreferido} | " +
+            $"{string.Join(", ", preferencias.CategoriasPreferidas)} | " +
+            $"{listaRecomendaciones.Longitud()} recomendaciones"
+        );
+
+
+        // 5. Devolver el NUEVO estado de la lista
+        return Results.Ok(
+            ObtenerEstadoMemoria()
+        );
     }
 );
-
 // ======================================================
 // PERFIL DEL USUARIO
 // ======================================================
