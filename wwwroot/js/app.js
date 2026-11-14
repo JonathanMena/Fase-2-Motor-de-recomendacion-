@@ -49,55 +49,68 @@ function actualizarResumenPreferencias() {
 
     document.getElementById('preferencia-error').textContent = '';
 }
-function iniciarRecomendaciones() {
+async function iniciarRecomendaciones() {
 
     const error = document.getElementById('preferencia-error');
 
     if (!tipoSeleccionado) {
-
         error.textContent =
             'Selecciona primero un tipo de contenido.';
-
         return;
     }
-
 
     if (categoriasSeleccionadas.length === 0) {
-
         error.textContent =
             'Selecciona al menos una categoría.';
-
         return;
     }
 
-
     const preferencias = {
-        tipo: tipoSeleccionado,
-        categorias: categoriasSeleccionadas
+        tipoPreferido: tipoSeleccionado,
+        categoriasPreferidas: categoriasSeleccionadas
     };
 
+    try {
 
-    localStorage.setItem(
-        'preferenciasRecomienda',
-        JSON.stringify(preferencias)
-    );
+        const respuesta = await fetch(
+            '/api/preferencias/1',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(preferencias)
+            }
+        );
 
+        if (!respuesta.ok) {
+            throw new Error(
+                'No se pudieron guardar las preferencias'
+            );
+        }
 
-    document.querySelectorAll('.vista')
-        .forEach(v => v.classList.remove('activa'));
+        document.querySelectorAll('.vista')
+            .forEach(v => v.classList.remove('activa'));
 
-    document.getElementById('vista-inicio')
-        .classList.add('activa');
+        document.getElementById('vista-inicio')
+            .classList.add('activa');
 
+        document.querySelectorAll('.nav-btn')
+            .forEach(b => b.classList.remove('active'));
 
-    document.querySelectorAll('.nav-btn')
-        .forEach(b => b.classList.remove('active'));
+        const botonInicio =
+            document.querySelector('.nav-btn');
 
-    const botonInicio =
-        document.querySelector('.nav-btn');
+        if (botonInicio) {
+            botonInicio.classList.add('active');
+        }
 
-    if (botonInicio) {
-        botonInicio.classList.add('active');
+    } catch (errorFetch) {
+
+        console.error(errorFetch);
+
+        error.textContent =
+            'Ocurrió un error al guardar las preferencias.';
     }
 }
         async function cargarEstado() {
@@ -137,29 +150,167 @@ function iniciarRecomendaciones() {
             const pct = longitud > 0 ? (posicionActual / longitud) * 100 : 0;
             document.getElementById('barra-progreso').style.width = `${pct}%`;
 
-            // Renderizar Historial (Mockup Pág. 12)
-            const contHist = document.getElementById('contenedor-historial');
-            contHist.innerHTML = listaCompleta.map(item => `
-                <div class="historial-item" style="${item.esActual ? 'border-color:var(--accent);' : ''}">
-                    <div>
-                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
-                            <span style="color:var(--cyan); font-size:0.8rem; font-weight:700;">Nodo #${item.posicion}</span>
-                            <span class="badge-estado">${item.dato.estado}</span>
-                            ${item.esActual ? '<span class="badge-actual">Puntero Actual</span>' : ''}
-                        </div>
-                        <h3 style="font-size:1.2rem;">${item.dato.titulo}</h3>
-                        <small style="color:var(--text-muted)">
-                            ${item.dato.autorDirector} • ${item.dato.anio} • Similitud: ${item.dato.puntajeSimilitud}%
-                        </small>
-                    </div>
-                    <div style="display:flex; gap:8px;">
-                        <button class="btn btn-danger" onclick="eliminarPorPosicion(${item.posicion})">
-                            Eliminar(${item.posicion})
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+           
         }
+        async function cargarHistorialSql() {
+
+    const contenedor =
+        document.getElementById('contenedor-historial');
+
+    contenedor.innerHTML = `
+        <div class="info-card">
+            Cargando historial...
+        </div>
+    `;
+
+    try {
+
+        const respuesta =
+            await fetch('/api/historial/1');
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                'No fue posible obtener el historial'
+            );
+        }
+
+        const historial =
+            await respuesta.json();
+
+        if (historial.length === 0) {
+
+            contenedor.innerHTML = `
+                <div class="info-card">
+                    <h3>Tu historial está vacío</h3>
+
+                    <p>
+                        Todavía no has marcado contenidos como
+                        Me gusta, Guardado o Descartado.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+
+        contenedor.innerHTML =
+            historial.map(item => {
+
+                let icono = '•';
+                let textoEstado = item.tipoInteraccion;
+
+                if (item.tipoInteraccion === 'MeGusta') {
+
+                    icono = '♥';
+                    textoEstado = 'Me gusta';
+
+                } else if (
+                    item.tipoInteraccion === 'Guardado'
+                ) {
+
+                    icono = '🔖';
+                    textoEstado = 'Guardado';
+
+                } else if (
+                    item.tipoInteraccion === 'Descartado'
+                ) {
+
+                    icono = '✕';
+                    textoEstado = 'Descartado';
+                }
+
+
+                const fecha =
+                    new Date(item.fecha)
+                        .toLocaleString('es-SV');
+
+
+                return `
+                    <div class="historial-item">
+
+                        <div>
+
+                            <div style="
+                                display:flex;
+                                align-items:center;
+                                gap:10px;
+                                margin-bottom:7px;
+                                flex-wrap:wrap;
+                            ">
+
+                                <span style="
+                                    color:var(--cyan);
+                                    font-size:.75rem;
+                                    font-weight:700;
+                                ">
+                                    ${item.tipoContenido}
+                                </span>
+
+                                <span class="badge-estado">
+                                    ${icono} ${textoEstado}
+                                </span>
+
+                            </div>
+
+
+                            <h3 style="
+                                font-size:1.2rem;
+                                margin-bottom:5px;
+                            ">
+                                ${item.titulo}
+                            </h3>
+
+
+                            <div style="
+                                color:var(--text-muted);
+                                font-size:.82rem;
+                            ">
+                                ${item.autorDirector}
+                                •
+                                ${item.anio}
+                                •
+                                ${item.categoria}
+                            </div>
+
+
+                            <div style="
+                                color:var(--text-muted);
+                                font-size:.7rem;
+                                margin-top:7px;
+                            ">
+                                ${fecha}
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+
+            }).join('');
+
+    } catch (error) {
+
+        console.error(
+            'Error cargando historial:',
+            error
+        );
+
+        contenedor.innerHTML = `
+            <div class="info-card">
+
+                <h3>No se pudo cargar el historial</h3>
+
+                <p>
+                    Ocurrió un problema al consultar
+                    las interacciones almacenadas.
+                </p>
+
+            </div>
+        `;
+    }
+}
 function abrirDetalle() {
 
     if (!estadoGlobal || !estadoGlobal.nodoActual) {
@@ -273,11 +424,25 @@ function volverAlInicio() {
             renderizarUI();
         }
 
-        function cambiarVista(nombre, btn) {
-            document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
-            document.getElementById(`vista-${nombre}`).classList.add('activa');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
+    async function cambiarVista(nombre, btn) {
+
+                document.querySelectorAll('.vista')
+                    .forEach(v => v.classList.remove('activa'));
+
+                document
+                    .getElementById(`vista-${nombre}`)
+                    .classList.add('activa');
+
+                document.querySelectorAll('.nav-btn')
+                    .forEach(b => b.classList.remove('active'));
+
+                btn.classList.add('active');
+
+
+                if (nombre === 'historial') {
+
+                    await cargarHistorialSql();
+                }
+            }
 
         cargarEstado();
