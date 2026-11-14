@@ -41,6 +41,9 @@ var preferenciaRepository =
 var interaccionRepository =
     new InteraccionRepository(connectionFactory);
 
+var perfilRepository =
+    new PerfilRepository(connectionFactory);
+
 
 // Por ahora el sistema trabaja con un usuario de demostración.
 // Más adelante podría venir de autenticación.
@@ -521,6 +524,32 @@ app.MapPost(
     }
 );
 
+// ======================================================
+// PERFIL DEL USUARIO
+// ======================================================
+
+app.MapGet(
+    "/api/perfil/{idUsuario:int}",
+    async (int idUsuario) =>
+    {
+        var perfil =
+            await perfilRepository
+                .ObtenerAsync(idUsuario);
+
+        if (perfil == null)
+        {
+            return Results.NotFound(
+                new
+                {
+                    mensaje =
+                        "Usuario no encontrado"
+                }
+            );
+        }
+
+        return Results.Ok(perfil);
+    }
+);
 
 // ======================================================
 // EJECUCIÓN

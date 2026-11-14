@@ -63,13 +63,7 @@ namespace MotorRecomendacion.Data
                         100
                     )";
 
-Console.WriteLine(
-    $"Guardando preferencias para usuario {idUsuario}"
-);
 
-Console.WriteLine(
-    $"Tipo: {tipoContenido}"
-);
                 foreach (string categoria in categorias)
                 {
                     await using var insertar =
@@ -77,9 +71,7 @@ Console.WriteLine(
                             insertarSql,
                             conexion,
                             (SqlTransaction)transaccion);
-Console.WriteLine(
-    $"Insertando categoría: {categoria}"
-);
+
                     insertar.Parameters.AddWithValue(
                         "@IdUsuario",
                         idUsuario);
@@ -97,18 +89,11 @@ Console.WriteLine(
 
                 await transaccion.CommitAsync();
             }
-       catch (Exception ex)
-{
-    Console.WriteLine(
-        "ERROR GUARDANDO PREFERENCIAS: " + ex.Message
-    );
-
-    Console.WriteLine(ex.ToString());
-
-    await transaccion.RollbackAsync();
-
-    throw;
-}
+            catch
+            {
+                await transaccion.RollbackAsync();
+                throw;
+            }
         }
 
 

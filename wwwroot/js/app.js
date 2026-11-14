@@ -423,26 +423,134 @@ function volverAlInicio() {
             estadoGlobal = await res.json();
             renderizarUI();
         }
+async function cargarPerfil() {
 
-    async function cambiarVista(nombre, btn) {
+    const nombre =
+        document.getElementById('perfil-nombre');
 
-                document.querySelectorAll('.vista')
-                    .forEach(v => v.classList.remove('activa'));
+    const email =
+        document.getElementById('perfil-email');
 
-                document
-                    .getElementById(`vista-${nombre}`)
-                    .classList.add('activa');
+    const contenedor =
+        document.getElementById('perfil-afinidades');
 
-                document.querySelectorAll('.nav-btn')
-                    .forEach(b => b.classList.remove('active'));
+    try {
 
-                btn.classList.add('active');
+        const respuesta =
+            await fetch('/api/perfil/1');
+
+        console.log(
+            'Respuesta perfil:',
+            respuesta.status
+        );
+
+        if (!respuesta.ok) {
+            throw new Error(
+                'No fue posible cargar el perfil'
+            );
+        }
+
+        const perfil =
+            await respuesta.json();
+
+        nombre.textContent =
+            perfil.nombre;
+
+        email.textContent =
+            perfil.email;
+
+        if (
+            !perfil.afinidades ||
+            perfil.afinidades.length === 0
+        ) {
+
+            contenedor.innerHTML = `
+                <p>
+                    Todavía no existen suficientes
+                    preferencias o interacciones para
+                    calcular afinidades.
+                </p>
+            `;
+
+            return;
+        }
+
+        contenedor.innerHTML =
+            perfil.afinidades.map(afinidad => `
+                <div>
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:6px;
+                    ">
+
+                        <span>
+                            ● ${afinidad.categoria}
+                        </span>
+
+                        <span>
+                            ${afinidad.puntaje}%
+                        </span>
+
+                    </div>
+
+                    <div class="progress-bar">
+
+                        <div
+                            class="progress-fill"
+                            style="
+                                width:${afinidad.puntaje}%;
+                            ">
+                        </div>
+
+                    </div>
+
+                </div>
+            `).join('');
+    }
+    catch (error) {
+
+        console.error(
+            'Error cargando perfil:',
+            error
+        );
+
+        nombre.textContent =
+            'No se pudo cargar el perfil';
+
+        email.textContent = '';
+
+        contenedor.innerHTML = `
+            <p>
+                Ocurrió un error al consultar
+                la información del usuario.
+            </p>
+        `;
+    }
+}
+async function cambiarVista(nombre, btn) {
+
+    document.querySelectorAll('.vista')
+        .forEach(v => v.classList.remove('activa'));
+
+    document
+        .getElementById(`vista-${nombre}`)
+        .classList.add('activa');
+
+    document.querySelectorAll('.nav-btn')
+        .forEach(b => b.classList.remove('active'));
+
+    btn.classList.add('active');
 
 
-                if (nombre === 'historial') {
+    if (nombre === 'historial') {
+        await cargarHistorialSql();
+    }
 
-                    await cargarHistorialSql();
-                }
-            }
+    if (nombre === 'perfil') {
+        await cargarPerfil();
+    }
+}
 
         cargarEstado();
