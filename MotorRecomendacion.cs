@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,42 +11,70 @@ namespace MotorRecomendacion
             string tipoPreferido,
             List<string> categoriasPreferidas)
         {
-            var resultado = contenidos.ToList();
+            var categorias = new HashSet<string>(
+                categoriasPreferidas ?? new List<string>(),
+                StringComparer.OrdinalIgnoreCase
+            );
 
-            foreach (var contenido in resultado)
-            {
-                int puntaje = 0;
+            var resultado = contenidos
 
-                if (!string.IsNullOrWhiteSpace(tipoPreferido) &&
+                // El tipo seleccionado sí filtra el catálogo
+                .Where(c =>
+                    c != null &&
                     string.Equals(
-                        contenido.TipoContenido,
+                        c.TipoContenido,
                         tipoPreferido,
-                        StringComparison.OrdinalIgnoreCase))
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                )
+
+                // Creamos objetos nuevos para no modificar
+                // el PuntajeBase que viene de SQL
+                .Select(c =>
                 {
-                    puntaje += 30;
-                }
+                    int puntajeBase =
+                        Math.Clamp(
+                            c.PuntajeSimilitud,
+                            0,
+                            100
+                        );
 
-                if (categoriasPreferidas != null &&
-                    categoriasPreferidas.Any(c =>
-                        string.Equals(
-                            c,
-                            contenido.Categoria,
-                            StringComparison.OrdinalIgnoreCase)))
-                {
-                    puntaje += 40;
-                }
+                    bool coincideCategoria =
+                        categorias.Contains(c.Categoria);
 
-                int puntajeOriginal = Math.Clamp(
-                    contenido.PuntajeSimilitud, 0, 100);
+                    // 65 puntos por categoría elegida
+                    // + hasta 35 por calidad/puntaje base
+                    int puntaje =
+                        (coincideCategoria ? 65 : 0)
+                        +
+                        (int)Math.Round(
+                            puntajeBase * 0.35
+                        );
 
-                puntaje += (int)Math.Round(puntajeOriginal * 0.30);
+                    return new Recomendacion(
+                        c.Id,
+                        c.Titulo,
+                        c.TipoContenido,
+                        c.Categoria,
+                        c.AutorDirector,
+                        c.Anio,
+                        c.Sinopsis,
+                        Math.Clamp(puntaje, 0, 100)
+                    )
+                    {
+                        Estado = c.Estado
+                    };
+                })
 
-                contenido.PuntajeSimilitud = Math.Clamp(puntaje, 0, 100);
-            }
-
-            return resultado
-                .OrderByDescending(c => c.PuntajeSimilitud)
+                .OrderByDescending(
+                    c => c.PuntajeSimilitud
+                )
+                .ThenBy(
+                    c => c.Titulo
+                )
                 .ToList();
+
+            return resultado;
         }
     }
 }

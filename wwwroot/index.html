@@ -276,57 +276,15 @@
 
             <h2>Selecciona tus categorías favoritas</h2>
 
-            <div class="categorias-grid">
+         <div
+            class="categorias-grid"
+            id="categorias-grid">
 
-                <button class="categoria-chip"
-                        data-categoria="Acción"
-                        onclick="toggleCategoria(this)">
-                    ⚡ Acción
-                </button>
+            <span style="color:var(--text-muted);">
+                Primero selecciona un tipo de contenido.
+            </span>
 
-                <button class="categoria-chip"
-                        data-categoria="Comedia"
-                        onclick="toggleCategoria(this)">
-                    😄 Comedia
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Drama"
-                        onclick="toggleCategoria(this)">
-                    🎭 Drama
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Terror"
-                        onclick="toggleCategoria(this)">
-                    🌙 Terror
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Fantasía"
-                        onclick="toggleCategoria(this)">
-                    ✨ Fantasía
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Ciencia Ficción"
-                        onclick="toggleCategoria(this)">
-                    🚀 Ciencia ficción
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Romance"
-                        onclick="toggleCategoria(this)">
-                    ♥ Romance
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Aventura"
-                        onclick="toggleCategoria(this)">
-                    🧭 Aventura
-                </button>
-
-            </div>
+        </div>
 
         </div>
 
@@ -480,37 +438,47 @@
         </section>
 
         <!-- VISTA 3: PERFIL Y CONFIGURACIÓN (Mockup Pág. 13) -->
-        <section id="vista-perfil" class="vista">
-            <div class="info-card" style="margin-bottom:24px;">
-                <h2>Alejandra Torres</h2>
-                <p style="margin-top:4px;">Estudiante de Ingeniería en Sistemas • Universidad Don Bosco (UDB)</p>
-            </div>
-            <div class="info-card">
-                <h3>AFINIDAD POR CATEGORÍA</h3>
-                <div style="margin-top:16px; display:flex; flex-direction:column; gap:16px;">
-                    <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                            <span>● Ciencia Ficción & Cyberpunk (Alta afinidad)</span><span>95%</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
-                    </div>
-                    <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                            <span>● Drama & Thriller Psicológico</span><span>80%</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:80%; background:var(--cyan);"></div></div>
-                    </div>
-                    <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                            <span>● Música Ambient & Bandas Sonoras (OST)</span><span>88%</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:88%; background:var(--pink);"></div></div>
-                    </div>
-                </div>
-            </div>
-        </section>
+       <section id="vista-perfil" class="vista">
+
+    <div
+        class="info-card"
+        style="margin-bottom:24px;">
+
+        <h2 id="perfil-nombre">
+            Cargando...
+        </h2>
+
+        <p
+            id="perfil-email"
+            style="margin-top:4px;">
+        </p>
 
     </div>
-     <script src="/js/app.js"></script>
+
+    <div class="info-card">
+
+        <h3>
+            AFINIDAD POR CATEGORÍA
+        </h3>
+
+        <div
+            id="perfil-afinidades"
+            style="
+                margin-top:16px;
+                display:flex;
+                flex-direction:column;
+                gap:16px;
+            ">
+
+            Cargando afinidades...
+
+        </div>
+
+    </div>
+
+</section>
+
+    </div>
+    <script src="/js/app.js?v=8"></script>
 </body>
 </html>
