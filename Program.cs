@@ -1,627 +1,111 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
-
 using MotorRecomendacion;
-using MotorRecomendacion.Data;
-using MotorRecomendacion.Models;
-
-using System.Collections.Generic;
-
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-// ======================================================
-// CONFIGURACIÓN SQL SERVER
-// ======================================================
-
-string connectionString =
-    builder.Configuration
-        .GetConnectionString("MotorRecomendacion");
-
-if (string.IsNullOrWhiteSpace(connectionString))
-{
-    throw new InvalidOperationException(
-        "No se encontró la cadena de conexión " +
-        "'MotorRecomendacion' en appsettings.json"
-    );
-}
-
-
-var connectionFactory =
-    new SqlConnectionFactory(connectionString);
-
-var contenidoRepository =
-    new ContenidoRepository(connectionFactory);
-
-var preferenciaRepository =
-    new PreferenciaRepository(connectionFactory);
-
-var interaccionRepository =
-    new InteraccionRepository(connectionFactory);
-
-var perfilRepository =
-    new PerfilRepository(connectionFactory);
-
-
-// Por ahora el sistema trabaja con un usuario de demostración.
-// Más adelante podría venir de autenticación.
-const int UsuarioDemoId = 1;
-
-
 var app = builder.Build();
-
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+// Instancia única en memoria dinámica de nuestra Lista Doblemente Enlazada
+ListaDoble listaRecomendaciones = BaseDeDatos.InicializarYCargarLista();
 
-// ======================================================
-// CARGAR SQL → LISTA DOBLEMENTE ENLAZADA
-// ======================================================
-
-ListaDoble listaRecomendaciones =
-    new ListaDoble();
-
-
-var contenidosIniciales =
-    await contenidoRepository
-        .ObtenerTodosAsync(UsuarioDemoId);
-
-
-foreach (var contenido in contenidosIniciales)
-{
-    listaRecomendaciones.Añadir(contenido);
-}
-
-
-listaRecomendaciones.Inicio();
-
-
-Console.WriteLine(
-    $"Lista cargada desde SQL Server: " +
-    $"{listaRecomendaciones.Longitud()} nodos"
-);
-
-
-// ======================================================
-// FUNCIÓN AUXILIAR PARA DEVOLVER ESTADO DE LA LISTA
-// ======================================================
-
+// Función auxiliar para armar la respuesta con el estado de los punteros en memoria
 object ObtenerEstadoMemoria()
 {
-    Nodo actual =
-        listaRecomendaciones.ObtenerNodoActual();
+    Nodo actual = listaRecomendaciones.ObtenerNodoActual();
+    var historial = new System.Collections.Generic.List<object>();
 
-    var historial =
-        new List<object>();
-
-
-    for (
-        int i = 1;
-        i <= listaRecomendaciones.Longitud();
-        i++)
+    for (int i = 1; i <= listaRecomendaciones.Longitud(); i++)
     {
-        var item =
-            listaRecomendaciones.Obtener(i);
-
-        historial.Add(
-            new
-            {
-                posicion = i,
-
-                esActual =
-                    i == listaRecomendaciones.Actual(),
-
-                dato = item
-            }
-        );
+        var item = listaRecomendaciones.Obtener(i);
+        historial.Add(new
+        {
+            posicion = i,
+            esActual = (i == listaRecomendaciones.Actual()),
+            dato = item
+        });
     }
-
 
     return new
     {
-        posicionActual =
-            listaRecomendaciones.Actual(),
-
-        longitud =
-            listaRecomendaciones.Longitud(),
-
-        nodoAnterior =
-            actual?.Anterior?.Dato,
-
-        nodoActual =
-            actual?.Dato,
-
-        nodoSiguiente =
-            actual?.Siguiente?.Dato,
-
-        listaCompleta =
-            historial
+        posicionActual = listaRecomendaciones.Actual(),
+        longitud = listaRecomendaciones.Longitud(),
+        nodoAnterior = actual?.Anterior?.Dato,
+        nodoActual = actual?.Dato,
+        nodoSiguiente = actual?.Siguiente?.Dato,
+        listaCompleta = historial
     };
 }
 
+// 1. Obtener estado actual de la ListaDoble
+app.MapGet("/api/lista", () => Results.Ok(ObtenerEstadoMemoria()));
 
-// ======================================================
-// LISTA DOBLEMENTE ENLAZADA
-// ======================================================
+// 2. Operación Inicio() -> Ir a primerNodo (Cabeza)
+app.MapPost("/api/lista/inicio", () =>
+{
+    listaRecomendaciones.Inicio();
+    return Results.Ok(ObtenerEstadoMemoria());
+});
 
+// 3. Operación Siguiente() -> Avanzar punteroActual.Siguiente
+app.MapPost("/api/lista/siguiente", () =>
+{
+    listaRecomendaciones.Siguiente();
+    return Results.Ok(ObtenerEstadoMemoria());
+});
 
-// Obtener estado actual
-app.MapGet(
-    "/api/lista",
-    () =>
+// 4. Operación Anterior() -> Retroceder punteroActual.Anterior
+app.MapPost("/api/lista/anterior", () =>
+{
+    listaRecomendaciones.Anterior();
+    return Results.Ok(ObtenerEstadoMemoria());
+});
+
+// 5. Cambiar estado ("Me gusta" / "Guardado") en el Dato del Nodo actual
+app.MapPost("/api/lista/estado/{nuevoEstado}", (string nuevoEstado) =>
+{
+    Nodo actual = listaRecomendaciones.ObtenerNodoActual();
+    if (actual != null)
     {
-        return Results.Ok(
-            ObtenerEstadoMemoria()
-        );
+        actual.Dato.Estado = nuevoEstado;
+        BaseDeDatos.GuardarDesdeLista(listaRecomendaciones);
     }
-);
-
-
-// Ir a cabeza
-app.MapPost(
-    "/api/lista/inicio",
-    () =>
-    {
-        listaRecomendaciones.Inicio();
-
-        return Results.Ok(
-            ObtenerEstadoMemoria()
-        );
-    }
-);
-
-
-// Siguiente
-app.MapPost(
-    "/api/lista/siguiente",
-    () =>
-    {
-        listaRecomendaciones.Siguiente();
-
-        return Results.Ok(
-            ObtenerEstadoMemoria()
-        );
-    }
-);
-
-
-// Anterior
-app.MapPost(
-    "/api/lista/anterior",
-    () =>
-    {
-        listaRecomendaciones.Anterior();
-
-        return Results.Ok(
-            ObtenerEstadoMemoria()
-        );
-    }
-);
-
-
-// ======================================================
-// ME GUSTA / GUARDADO
-// ======================================================
-
-app.MapPost(
-    "/api/lista/estado/{nuevoEstado}",
-    async (string nuevoEstado) =>
-    {
-        Nodo actual =
-            listaRecomendaciones.ObtenerNodoActual();
-
-
-        if (actual == null)
-        {
-            return Results.BadRequest(
-                new
-                {
-                    mensaje =
-                        "No existe un nodo actual"
-                }
-            );
-        }
-
-
-        string tipoInteraccion;
-
-
-        if (
-            nuevoEstado.Contains(
-                "Me gusta",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            tipoInteraccion = "MeGusta";
-        }
-        else if (
-            nuevoEstado.Contains(
-                "Guardado",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            tipoInteraccion = "Guardado";
-        }
-        else
-        {
-            return Results.BadRequest(
-                new
-                {
-                    mensaje =
-                        "Estado no válido"
-                }
-            );
-        }
-
-
-        // Cambia el estado visual en memoria.
-        actual.Dato.Estado =
-            nuevoEstado;
-
-
-        // Persiste la interacción en SQL Server.
-        await interaccionRepository
-            .RegistrarAsync(
-                UsuarioDemoId,
-                actual.Dato.Id,
-                tipoInteraccion
-            );
-
-
-        return Results.Ok(
-            ObtenerEstadoMemoria()
-        );
-    }
-);
-
-
-// ======================================================
-// DESCARTAR / ELIMINAR NODO
-// ======================================================
-
-app.MapDelete(
-    "/api/lista/eliminar/{posicion:int}",
-    async (int posicion) =>
-    {
-        var recomendacion =
-            listaRecomendaciones.Obtener(posicion);
-
-
-        if (recomendacion == null)
-        {
-            return Results.NotFound(
-                new
-                {
-                    mensaje =
-                        "La posición indicada no existe"
-                }
-            );
-        }
-
-
-        // Guardamos la interacción ANTES
-        // de eliminar el nodo de memoria.
-        await interaccionRepository
-            .RegistrarAsync(
-                UsuarioDemoId,
-                recomendacion.Id,
-                "Descartado"
-            );
-
-
-        bool eliminado =
-            listaRecomendaciones
-                .Eliminar(posicion);
-
-
-        if (!eliminado)
-        {
-            return Results.BadRequest(
-                new
-                {
-                    mensaje =
-                        "No fue posible eliminar el nodo"
-                }
-            );
-        }
-
-
-        return Results.Ok(
-            ObtenerEstadoMemoria()
-        );
-    }
-);
-
-
-// ======================================================
-// INSERTAR NUEVO CONTENIDO
-// ======================================================
-
-app.MapPost(
-    "/api/lista/insertar",
-    async (InsercionRequest req) =>
-    {
-        var nuevaRec =
-            new Recomendacion(
-                0,
-                req.Titulo,
-                req.TipoContenido,
-                req.Categoria,
-                req.AutorDirector,
-                req.Anio,
-                req.Sinopsis,
-                req.PuntajeSimilitud
-            );
-
-
-        // Primero guardamos en SQL.
-        int nuevoId =
-            await contenidoRepository
-                .InsertarAsync(nuevaRec);
-
-
-        // SQL nos devuelve el IDENTITY.
-        nuevaRec.Id =
-            nuevoId;
-
-
-        // Luego agregamos a la estructura dinámica.
-        if (
-            req.Posicion <= 0 ||
-            req.Posicion >
-                listaRecomendaciones.Longitud())
-        {
-            listaRecomendaciones
-                .Añadir(nuevaRec);
-        }
-        else
-        {
-            listaRecomendaciones
-                .Insertar(
-                    nuevaRec,
-                    req.Posicion
-                );
-        }
-
-
-        return Results.Ok(
-            ObtenerEstadoMemoria()
-        );
-    }
-);
-
-
-// ======================================================
-// PREFERENCIAS DEL USUARIO
-// ======================================================
-
-
-// Guardar preferencias
-app.MapPost(
-    "/api/preferencias/{idUsuario:int}",
-    async (
-        int idUsuario,
-        PreferenciasRequest preferencias) =>
-    {
-        if (
-            string.IsNullOrWhiteSpace(
-                preferencias.TipoPreferido) ||
-            preferencias.CategoriasPreferidas == null ||
-            preferencias.CategoriasPreferidas.Count == 0)
-        {
-            return Results.BadRequest(
-                new
-                {
-                    mensaje =
-                        "Debe seleccionar un tipo " +
-                        "y al menos una categoría"
-                }
-            );
-        }
-
-
-        await preferenciaRepository
-            .GuardarAsync(
-                idUsuario,
-                preferencias.TipoPreferido,
-                preferencias.CategoriasPreferidas
-            );
-
-
-        return Results.Ok(
-            new
-            {
-                mensaje =
-                    "Preferencias guardadas correctamente"
-            }
-        );
-    }
-);
-
-
-// Consultar preferencias
-app.MapGet(
-    "/api/preferencias/{idUsuario:int}",
-    async (int idUsuario) =>
-    {
-        var preferencias =
-            await preferenciaRepository
-                .ObtenerAsync(idUsuario);
-
-
-        if (preferencias == null)
-        {
-            return Results.NotFound(
-                new
-                {
-                    mensaje =
-                        "El usuario todavía no tiene preferencias"
-                }
-            );
-        }
-
-
-        return Results.Ok(preferencias);
-    }
-);
-
-
-// ======================================================
-// HISTORIAL DESDE SQL SERVER
-// ======================================================
-
-app.MapGet(
-    "/api/historial/{idUsuario:int}",
-    async (int idUsuario) =>
-    {
-        var historial =
-            await interaccionRepository
-                .ObtenerHistorialAsync(idUsuario);
-
-
-        return Results.Ok(historial);
-    }
-);
-
-
-// ======================================================
-// MOTOR DE RECOMENDACIONES
-// ======================================================
-
-app.MapPost(
-    "/api/recomendaciones/calcular/{idUsuario:int}",
-    async (
-        int idUsuario,
-        PreferenciasRequest preferencias) =>
-    {
-        if (
-            string.IsNullOrWhiteSpace(
-                preferencias.TipoPreferido) ||
-            preferencias.CategoriasPreferidas == null ||
-            preferencias.CategoriasPreferidas.Count == 0)
-        {
-            return Results.BadRequest(
-                new
-                {
-                    mensaje =
-                        "Debe seleccionar un tipo " +
-                        "y al menos una categoría"
-                }
-            );
-        }
-
-
-        // 1. Guardar preferencias en SQL
-        await preferenciaRepository
-            .GuardarAsync(
-                idUsuario,
-                preferencias.TipoPreferido,
-                preferencias.CategoriasPreferidas
-            );
-
-
-        // 2. Obtener nuevamente el catálogo desde SQL.
-        // Este método ya excluye contenidos descartados.
-        var catalogo =
-            await contenidoRepository
-                .ObtenerTodosAsync(idUsuario);
-
-
-        // 3. Calcular recomendaciones
-        var recomendaciones =
-            global::MotorRecomendacion
-                .MotorRecomendacion
-                .CalcularRecomendaciones(
-                    catalogo,
-                    preferencias.TipoPreferido,
-                    preferencias.CategoriasPreferidas
-                );
-
-
-        // 4. Reconstruir la Lista Doblemente Enlazada
-        listaRecomendaciones =
-            new ListaDoble();
-
-
-        foreach (var recomendacion
-                 in recomendaciones)
-        {
-            listaRecomendaciones
-                .Añadir(recomendacion);
-        }
-
-
-        listaRecomendaciones.Inicio();
-
-
-        Console.WriteLine(
-            $"Motor generado -> " +
-            $"{preferencias.TipoPreferido} | " +
-            $"{string.Join(", ", preferencias.CategoriasPreferidas)} | " +
-            $"{listaRecomendaciones.Longitud()} recomendaciones"
-        );
-
-
-        // 5. Devolver el NUEVO estado de la lista
-        return Results.Ok(
-            ObtenerEstadoMemoria()
-        );
-    }
-);
-// ======================================================
-// PERFIL DEL USUARIO
-// ======================================================
-
-app.MapGet(
-    "/api/perfil/{idUsuario:int}",
-    async (int idUsuario) =>
-    {
-        var perfil =
-            await perfilRepository
-                .ObtenerAsync(idUsuario);
-
-        if (perfil == null)
-        {
-            return Results.NotFound(
-                new
-                {
-                    mensaje =
-                        "Usuario no encontrado"
-                }
-            );
-        }
-
-        return Results.Ok(perfil);
-    }
-);
-
-// ======================================================
-// EJECUCIÓN
-// ======================================================
-
-app.Run(
-    "http://localhost:5150"
-);
-
-
-// ======================================================
-// REQUEST MODELS
-// ======================================================
+    return Results.Ok(ObtenerEstadoMemoria());
+});
+
+// 6. Operación Eliminar(posición) -> Descartar nodo y reenlazar punteros Ant y Sig
+app.MapDelete("/api/lista/eliminar/{posicion:int}", (int posicion) =>
+{
+    listaRecomendaciones.Eliminar(posicion);
+    BaseDeDatos.GuardarDesdeLista(listaRecomendaciones);
+    return Results.Ok(ObtenerEstadoMemoria());
+});
+
+// 7. Operación Insertar(elemento, posición) o Añadir(elemento)
+app.MapPost("/api/lista/insertar", (InsercionRequest req) =>
+{
+    int nuevoId = listaRecomendaciones.Longitud() + 10;
+    var nuevaRec = new Recomendacion(
+        nuevoId, req.Titulo, req.TipoContenido, req.Categoria,
+        req.AutorDirector, req.Anio, req.Sinopsis, req.PuntajeSimilitud
+    );
+
+    if (req.Posicion <= 0 || req.Posicion > listaRecomendaciones.Longitud())
+        listaRecomendaciones.Añadir(nuevaRec);
+    else
+        listaRecomendaciones.Insertar(nuevaRec, req.Posicion);
+
+    BaseDeDatos.GuardarDesdeLista(listaRecomendaciones);
+    return Results.Ok(ObtenerEstadoMemoria());
+});
+
+app.Run("http://localhost:5150");
 
 public record InsercionRequest(
-    string Titulo,
-    string TipoContenido,
-    string Categoria,
-    string AutorDirector,
-    int Anio,
-    string Sinopsis,
-    int PuntajeSimilitud,
-    int Posicion
-);
-
-
-public record PreferenciasRequest(
-    string TipoPreferido,
-    List<string>? CategoriasPreferidas
+    string Titulo, string TipoContenido, string Categoria,
+    string AutorDirector, int Anio, string Sinopsis,
+    int PuntajeSimilitud, int Posicion
 );

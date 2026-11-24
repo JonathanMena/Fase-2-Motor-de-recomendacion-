@@ -2,107 +2,14 @@
         let estadoGlobal = null;
         let tipoSeleccionado = null;
         let categoriasSeleccionadas = [];
-        const categoriasPorTipo = {
-
-    'Películas': [
-        'Acción',
-        'Comedia',
-        'Drama',
-        'Terror',
-        'Fantasía',
-        'Ciencia Ficción',
-        'Romance',
-        'Aventura'
-    ],
-
-    'Música': [
-        'Pop',
-        'Rock',
-        'Electrónica',
-        'Hip-Hop',
-        'Clásica',
-        'Jazz',
-        'Indie',
-        'Soundtrack'
-    ],
-
-    'Libros': [
-        'Ciencia Ficción',
-        'Fantasía',
-        'Misterio',
-        'Romance',
-        'Terror',
-        'Aventura',
-        'Historia',
-        'No Ficción'
-    ]
-};
-
-function renderizarCategorias(tipo) {
-
-    const contenedor =
-        document.getElementById(
-            'categorias-grid'
-        );
-
-
-    categoriasSeleccionadas = [];
-
-
-    const categorias =
-        categoriasPorTipo[tipo] || [];
-
-
-    if (categorias.length === 0) {
-
-        contenedor.innerHTML = `
-            <span style="color:var(--text-muted);">
-                Primero selecciona un tipo de contenido.
-            </span>
-        `;
-
-        return;
-    }
-
-
-    contenedor.innerHTML =
-        categorias.map(
-            categoria => `
-                <button
-                    class="categoria-chip"
-                    data-categoria="${categoria}"
-                    onclick="toggleCategoria(this)">
-
-                    ${categoria}
-
-                </button>
-            `
-        ).join('');
-}
-function seleccionarTipo(elemento) {
+        function seleccionarTipo(elemento) {
 
     document.querySelectorAll('.tipo-card')
-        .forEach(
-            card =>
-                card.classList.remove(
-                    'seleccionado'
-                )
-        );
+        .forEach(card => card.classList.remove('seleccionado'));
 
+    elemento.classList.add('seleccionado');
 
-    elemento.classList.add(
-        'seleccionado'
-    );
-
-
-    tipoSeleccionado =
-        elemento.dataset.tipo;
-
-
-    renderizarCategorias(
-        tipoSeleccionado
-    );
-
+    tipoSeleccionado = elemento.dataset.tipo;
 
     actualizarResumenPreferencias();
 }
@@ -142,12 +49,9 @@ function actualizarResumenPreferencias() {
 
     document.getElementById('preferencia-error').textContent = '';
 }
-async function iniciarRecomendaciones() {
+function iniciarRecomendaciones() {
 
-    const error =
-        document.getElementById(
-            'preferencia-error'
-        );
+    const error = document.getElementById('preferencia-error');
 
     if (!tipoSeleccionado) {
 
@@ -168,129 +72,32 @@ async function iniciarRecomendaciones() {
 
 
     const preferencias = {
-
-        tipoPreferido:
-            tipoSeleccionado,
-
-        categoriasPreferidas:
-            categoriasSeleccionadas
+        tipo: tipoSeleccionado,
+        categorias: categoriasSeleccionadas
     };
 
 
-    try {
-
-        error.textContent =
-            'Generando recomendaciones...';
-
-
-        const respuesta =
-            await fetch(
-                '/api/recomendaciones/calcular/1',
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    },
-
-                    body:
-                        JSON.stringify(
-                            preferencias
-                        )
-                }
-            );
+    localStorage.setItem(
+        'preferenciasRecomienda',
+        JSON.stringify(preferencias)
+    );
 
 
-        if (!respuesta.ok) {
+    document.querySelectorAll('.vista')
+        .forEach(v => v.classList.remove('activa'));
 
-            const mensaje =
-                await respuesta.text();
-
-            console.error(mensaje);
-
-            throw new Error(
-                'No fue posible calcular las recomendaciones'
-            );
-        }
+    document.getElementById('vista-inicio')
+        .classList.add('activa');
 
 
-        // La API devuelve el NUEVO estado
-        // de la ListaDoble
-        estadoGlobal =
-            await respuesta.json();
+    document.querySelectorAll('.nav-btn')
+        .forEach(b => b.classList.remove('active'));
 
+    const botonInicio =
+        document.querySelector('.nav-btn');
 
-        if (
-            !estadoGlobal ||
-            estadoGlobal.longitud === 0
-        ) {
-
-            error.textContent =
-                'No encontramos contenido para estas preferencias.';
-
-            return;
-        }
-
-
-        // Refrescar toda la interfaz
-        renderizarUI();
-
-
-        // Mostrar Inicio
-        document.querySelectorAll('.vista')
-            .forEach(
-                v =>
-                    v.classList.remove(
-                        'activa'
-                    )
-            );
-
-
-        document
-            .getElementById(
-                'vista-inicio'
-            )
-            .classList.add(
-                'activa'
-            );
-
-
-        document.querySelectorAll('.nav-btn')
-            .forEach(
-                b =>
-                    b.classList.remove(
-                        'active'
-                    )
-            );
-
-
-        const botonInicio =
-            document.querySelector(
-                '.nav-btn'
-            );
-
-
-        if (botonInicio) {
-
-            botonInicio.classList.add(
-                'active'
-            );
-        }
-
-
-        error.textContent = '';
-
-    }
-    catch (err) {
-
-        console.error(
-            'Error generando recomendaciones:',
-            err
-        );
-
-        error.textContent =
-            'No fue posible generar las recomendaciones.';
+    if (botonInicio) {
+        botonInicio.classList.add('active');
     }
 }
         async function cargarEstado() {
@@ -330,167 +137,29 @@ async function iniciarRecomendaciones() {
             const pct = longitud > 0 ? (posicionActual / longitud) * 100 : 0;
             document.getElementById('barra-progreso').style.width = `${pct}%`;
 
-           
-        }
-        async function cargarHistorialSql() {
-
-    const contenedor =
-        document.getElementById('contenedor-historial');
-
-    contenedor.innerHTML = `
-        <div class="info-card">
-            Cargando historial...
-        </div>
-    `;
-
-    try {
-
-        const respuesta =
-            await fetch('/api/historial/1');
-
-        if (!respuesta.ok) {
-
-            throw new Error(
-                'No fue posible obtener el historial'
-            );
-        }
-
-        const historial =
-            await respuesta.json();
-
-        if (historial.length === 0) {
-
-            contenedor.innerHTML = `
-                <div class="info-card">
-                    <h3>Tu historial está vacío</h3>
-
-                    <p>
-                        Todavía no has marcado contenidos como
-                        Me gusta, Guardado o Descartado.
-                    </p>
-                </div>
-            `;
-
-            return;
-        }
-
-
-        contenedor.innerHTML =
-            historial.map(item => {
-
-                let icono = '•';
-                let textoEstado = item.tipoInteraccion;
-
-                if (item.tipoInteraccion === 'MeGusta') {
-
-                    icono = '♥';
-                    textoEstado = 'Me gusta';
-
-                } else if (
-                    item.tipoInteraccion === 'Guardado'
-                ) {
-
-                    icono = '🔖';
-                    textoEstado = 'Guardado';
-
-                } else if (
-                    item.tipoInteraccion === 'Descartado'
-                ) {
-
-                    icono = '✕';
-                    textoEstado = 'Descartado';
-                }
-
-
-                const fecha =
-                    new Date(item.fecha)
-                        .toLocaleString('es-SV');
-
-
-                return `
-                    <div class="historial-item">
-
-                        <div>
-
-                            <div style="
-                                display:flex;
-                                align-items:center;
-                                gap:10px;
-                                margin-bottom:7px;
-                                flex-wrap:wrap;
-                            ">
-
-                                <span style="
-                                    color:var(--cyan);
-                                    font-size:.75rem;
-                                    font-weight:700;
-                                ">
-                                    ${item.tipoContenido}
-                                </span>
-
-                                <span class="badge-estado">
-                                    ${icono} ${textoEstado}
-                                </span>
-
-                            </div>
-
-
-                            <h3 style="
-                                font-size:1.2rem;
-                                margin-bottom:5px;
-                            ">
-                                ${item.titulo}
-                            </h3>
-
-
-                            <div style="
-                                color:var(--text-muted);
-                                font-size:.82rem;
-                            ">
-                                ${item.autorDirector}
-                                •
-                                ${item.anio}
-                                •
-                                ${item.categoria}
-                            </div>
-
-
-                            <div style="
-                                color:var(--text-muted);
-                                font-size:.7rem;
-                                margin-top:7px;
-                            ">
-                                ${fecha}
-                            </div>
-
+            // Renderizar Historial (Mockup Pág. 12)
+            const contHist = document.getElementById('contenedor-historial');
+            contHist.innerHTML = listaCompleta.map(item => `
+                <div class="historial-item" style="${item.esActual ? 'border-color:var(--accent);' : ''}">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+                            <span style="color:var(--cyan); font-size:0.8rem; font-weight:700;">Nodo #${item.posicion}</span>
+                            <span class="badge-estado">${item.dato.estado}</span>
+                            ${item.esActual ? '<span class="badge-actual">Puntero Actual</span>' : ''}
                         </div>
-
+                        <h3 style="font-size:1.2rem;">${item.dato.titulo}</h3>
+                        <small style="color:var(--text-muted)">
+                            ${item.dato.autorDirector} • ${item.dato.anio} • Similitud: ${item.dato.puntajeSimilitud}%
+                        </small>
                     </div>
-                `;
-
-            }).join('');
-
-    } catch (error) {
-
-        console.error(
-            'Error cargando historial:',
-            error
-        );
-
-        contenedor.innerHTML = `
-            <div class="info-card">
-
-                <h3>No se pudo cargar el historial</h3>
-
-                <p>
-                    Ocurrió un problema al consultar
-                    las interacciones almacenadas.
-                </p>
-
-            </div>
-        `;
-    }
-}
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-danger" onclick="eliminarPorPosicion(${item.posicion})">
+                            Eliminar(${item.posicion})
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
 function abrirDetalle() {
 
     if (!estadoGlobal || !estadoGlobal.nodoActual) {
@@ -603,134 +272,12 @@ function volverAlInicio() {
             estadoGlobal = await res.json();
             renderizarUI();
         }
-async function cargarPerfil() {
 
-    const nombre =
-        document.getElementById('perfil-nombre');
-
-    const email =
-        document.getElementById('perfil-email');
-
-    const contenedor =
-        document.getElementById('perfil-afinidades');
-
-    try {
-
-        const respuesta =
-            await fetch('/api/perfil/1');
-
-        console.log(
-            'Respuesta perfil:',
-            respuesta.status
-        );
-
-        if (!respuesta.ok) {
-            throw new Error(
-                'No fue posible cargar el perfil'
-            );
+        function cambiarVista(nombre, btn) {
+            document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+            document.getElementById(`vista-${nombre}`).classList.add('activa');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         }
-
-        const perfil =
-            await respuesta.json();
-
-        nombre.textContent =
-            perfil.nombre;
-
-        email.textContent =
-            perfil.email;
-
-        if (
-            !perfil.afinidades ||
-            perfil.afinidades.length === 0
-        ) {
-
-            contenedor.innerHTML = `
-                <p>
-                    Todavía no existen suficientes
-                    preferencias o interacciones para
-                    calcular afinidades.
-                </p>
-            `;
-
-            return;
-        }
-
-        contenedor.innerHTML =
-            perfil.afinidades.map(afinidad => `
-                <div>
-
-                    <div style="
-                        display:flex;
-                        justify-content:space-between;
-                        margin-bottom:6px;
-                    ">
-
-                        <span>
-                            ● ${afinidad.categoria}
-                        </span>
-
-                        <span>
-                            ${afinidad.puntaje}%
-                        </span>
-
-                    </div>
-
-                    <div class="progress-bar">
-
-                        <div
-                            class="progress-fill"
-                            style="
-                                width:${afinidad.puntaje}%;
-                            ">
-                        </div>
-
-                    </div>
-
-                </div>
-            `).join('');
-    }
-    catch (error) {
-
-        console.error(
-            'Error cargando perfil:',
-            error
-        );
-
-        nombre.textContent =
-            'No se pudo cargar el perfil';
-
-        email.textContent = '';
-
-        contenedor.innerHTML = `
-            <p>
-                Ocurrió un error al consultar
-                la información del usuario.
-            </p>
-        `;
-    }
-}
-async function cambiarVista(nombre, btn) {
-
-    document.querySelectorAll('.vista')
-        .forEach(v => v.classList.remove('activa'));
-
-    document
-        .getElementById(`vista-${nombre}`)
-        .classList.add('activa');
-
-    document.querySelectorAll('.nav-btn')
-        .forEach(b => b.classList.remove('active'));
-
-    btn.classList.add('active');
-
-
-    if (nombre === 'historial') {
-        await cargarHistorialSql();
-    }
-
-    if (nombre === 'perfil') {
-        await cargarPerfil();
-    }
-}
 
         cargarEstado();
