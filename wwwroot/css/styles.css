@@ -568,3 +568,12 @@
         flex-direction: column;
     }
 }
+
+/* ===== Interfaz de usuario =====
+   Se ocultan los elementos técnicos de la lista enlazada.
+   Siguen en la página (app.js los necesita), solo no se ven.
+   Para mostrarlos en la defensa: agregar la clase "modo-tecnico" al <body>. */
+body:not(.modo-tecnico) .nodos-visualizer,
+body:not(.modo-tecnico) .side-panel .info-card {
+    display: none;
+}
