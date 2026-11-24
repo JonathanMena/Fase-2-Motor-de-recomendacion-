@@ -577,3 +577,19 @@ body:not(.modo-tecnico) .nodos-visualizer,
 body:not(.modo-tecnico) .side-panel .info-card {
     display: none;
 }
+
+/* Ajuste de la pantalla de recomendaciones */
+.hero-card {
+    min-height: 420px !important;
+}
+
+.main-grid {
+    align-items: start;
+}
+
+#vista-inicio.activa {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
