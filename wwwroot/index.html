@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recomienda+ | Motor de Recomendación EDD</title>
+    <title>Recomienda+ | Tu contenido ideal</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
@@ -19,7 +19,7 @@
             <button class="nav-btn" onclick="cambiarVista('perfil', this)">Perfil</button>
         </div>
         <div class="user-pill">
-            <span>Estudiante EDD | Lista Doblemente Enlazada</span>
+            <span>Mi cuenta</span>
         </div>
     </header>
 
@@ -166,7 +166,7 @@
                         <button class="btn" onclick="navegar('anterior')">&larr; Anterior</button>
                         <button class="btn btn-primary" onclick="navegar('siguiente')">Siguiente &rarr;</button>
                     </div>
-                    <button class="btn" onclick="navegar('inicio')">⏮ Ir a Cabeza (Método Inicio)</button>
+                    <button class="btn" onclick="navegar('inicio')">Volver al inicio</button>
 
                     <div class="info-card">
                         <h3>Insertar Recomendación por Posición</h3>
@@ -329,7 +329,7 @@
 <section id="vista-detalle" class="vista">
 
     <button class="btn" onclick="volverAlInicio()" style="margin-bottom:20px;">
-        ← Volver al motor de recomendación
+        ← Volver a mis recomendaciones
     </button>
 
     <div class="detalle-grid">
@@ -378,13 +378,12 @@
 
             <div class="info-card detalle-explicacion">
 
-                <h3>¿Por qué te lo recomendamos?</h3>
+            <h3>¿Por qué te lo recomendamos?</h3>
 
                 <p>
-                    Este contenido presenta características relacionadas
-                    con tus preferencias y con las recomendaciones
-                    previamente evaluadas.
+                    Esto es lo que tuvimos en cuenta para sugerirte este contenido:
                 </p>
+
 
                 <div class="razon-recomendacion">
                     <span>🚀 Coincidencia de categoría</span>
@@ -397,7 +396,7 @@
                 </div>
 
                 <div class="razon-recomendacion">
-                    <span>↔ Nodo actual de la lista</span>
+                    <span>Posición en tus recomendaciones</span>
                     <strong id="detalle-posicion"></strong>
                 </div>
 
@@ -433,7 +432,7 @@
 </section>
         <!-- VISTA 2: HISTORIAL DE RECOMENDACIONES (Mockup Pág. 12) -->
         <section id="vista-historial" class="vista">
-            <h2 style="margin-bottom: 18px;">Historial de recomendaciones en la Lista Enlazada</h2>
+            <h2 style="margin-bottom: 18px;">Tu historial de recomendaciones</h2>
             <div id="contenedor-historial"></div>
         </section>
 
