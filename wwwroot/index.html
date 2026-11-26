@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recomienda+ | Motor de Recomendación EDD</title>
+    <title>Recomienda+ | Tu contenido ideal</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
@@ -19,7 +19,7 @@
             <button class="nav-btn" onclick="cambiarVista('perfil', this)">Perfil</button>
         </div>
         <div class="user-pill">
-            <span>Estudiante EDD | Lista Doblemente Enlazada</span>
+            <span>Mi cuenta</span>
         </div>
     </header>
 
@@ -166,7 +166,7 @@
                         <button class="btn" onclick="navegar('anterior')">&larr; Anterior</button>
                         <button class="btn btn-primary" onclick="navegar('siguiente')">Siguiente &rarr;</button>
                     </div>
-                    <button class="btn" onclick="navegar('inicio')">⏮ Ir a Cabeza (Método Inicio)</button>
+                    <button class="btn" onclick="navegar('inicio')">Volver al inicio</button>
 
                     <div class="info-card">
                         <h3>Insertar Recomendación por Posición</h3>
@@ -276,57 +276,15 @@
 
             <h2>Selecciona tus categorías favoritas</h2>
 
-            <div class="categorias-grid">
+         <div
+            class="categorias-grid"
+            id="categorias-grid">
 
-                <button class="categoria-chip"
-                        data-categoria="Acción"
-                        onclick="toggleCategoria(this)">
-                    ⚡ Acción
-                </button>
+            <span style="color:var(--text-muted);">
+                Primero selecciona un tipo de contenido.
+            </span>
 
-                <button class="categoria-chip"
-                        data-categoria="Comedia"
-                        onclick="toggleCategoria(this)">
-                    😄 Comedia
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Drama"
-                        onclick="toggleCategoria(this)">
-                    🎭 Drama
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Terror"
-                        onclick="toggleCategoria(this)">
-                    🌙 Terror
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Fantasía"
-                        onclick="toggleCategoria(this)">
-                    ✨ Fantasía
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Ciencia Ficción"
-                        onclick="toggleCategoria(this)">
-                    🚀 Ciencia ficción
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Romance"
-                        onclick="toggleCategoria(this)">
-                    ♥ Romance
-                </button>
-
-                <button class="categoria-chip"
-                        data-categoria="Aventura"
-                        onclick="toggleCategoria(this)">
-                    🧭 Aventura
-                </button>
-
-            </div>
+        </div>
 
         </div>
 
@@ -371,7 +329,7 @@
 <section id="vista-detalle" class="vista">
 
     <button class="btn" onclick="volverAlInicio()" style="margin-bottom:20px;">
-        ← Volver al motor de recomendación
+        ← Volver a mis recomendaciones
     </button>
 
     <div class="detalle-grid">
@@ -420,13 +378,12 @@
 
             <div class="info-card detalle-explicacion">
 
-                <h3>¿Por qué te lo recomendamos?</h3>
+            <h3>¿Por qué te lo recomendamos?</h3>
 
                 <p>
-                    Este contenido presenta características relacionadas
-                    con tus preferencias y con las recomendaciones
-                    previamente evaluadas.
+                    Esto es lo que tuvimos en cuenta para sugerirte este contenido:
                 </p>
+
 
                 <div class="razon-recomendacion">
                     <span>🚀 Coincidencia de categoría</span>
@@ -439,7 +396,7 @@
                 </div>
 
                 <div class="razon-recomendacion">
-                    <span>↔ Nodo actual de la lista</span>
+                    <span>Posición en tus recomendaciones</span>
                     <strong id="detalle-posicion"></strong>
                 </div>
 
@@ -475,42 +432,52 @@
 </section>
         <!-- VISTA 2: HISTORIAL DE RECOMENDACIONES (Mockup Pág. 12) -->
         <section id="vista-historial" class="vista">
-            <h2 style="margin-bottom: 18px;">Historial de recomendaciones en la Lista Enlazada</h2>
+            <h2 style="margin-bottom: 18px;">Tu historial de recomendaciones</h2>
             <div id="contenedor-historial"></div>
         </section>
 
         <!-- VISTA 3: PERFIL Y CONFIGURACIÓN (Mockup Pág. 13) -->
-        <section id="vista-perfil" class="vista">
-            <div class="info-card" style="margin-bottom:24px;">
-                <h2>Alejandra Torres</h2>
-                <p style="margin-top:4px;">Estudiante de Ingeniería en Sistemas • Universidad Don Bosco (UDB)</p>
-            </div>
-            <div class="info-card">
-                <h3>AFINIDAD POR CATEGORÍA</h3>
-                <div style="margin-top:16px; display:flex; flex-direction:column; gap:16px;">
-                    <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                            <span>● Ciencia Ficción & Cyberpunk (Alta afinidad)</span><span>95%</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
-                    </div>
-                    <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                            <span>● Drama & Thriller Psicológico</span><span>80%</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:80%; background:var(--cyan);"></div></div>
-                    </div>
-                    <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                            <span>● Música Ambient & Bandas Sonoras (OST)</span><span>88%</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:88%; background:var(--pink);"></div></div>
-                    </div>
-                </div>
-            </div>
-        </section>
+       <section id="vista-perfil" class="vista">
+
+    <div
+        class="info-card"
+        style="margin-bottom:24px;">
+
+        <h2 id="perfil-nombre">
+            Cargando...
+        </h2>
+
+        <p
+            id="perfil-email"
+            style="margin-top:4px;">
+        </p>
 
     </div>
-     <script src="/js/app.js"></script>
+
+    <div class="info-card">
+
+        <h3>
+            AFINIDAD POR CATEGORÍA
+        </h3>
+
+        <div
+            id="perfil-afinidades"
+            style="
+                margin-top:16px;
+                display:flex;
+                flex-direction:column;
+                gap:16px;
+            ">
+
+            Cargando afinidades...
+
+        </div>
+
+    </div>
+
+</section>
+
+    </div>
+    <script src="/js/app.js?v=8"></script>
 </body>
 </html>
